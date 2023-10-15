@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "azure-rm-proxy-server"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "azure_rm_proxy"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "0.100.0"
+uvicorn = "0.23.0"
+azure-identity = "1.13.0"
+azure-mgmt-resource = "23.0.0"
+azure-mgmt-compute = "30.0.0"
+azure-mgmt-network = "24.0.0"
+azure-mgmt-authorization = "3.0.0"
+pydantic = "2.1.0"
+httpx = "0.24.1"
+rich = "13.4.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "7.4.4"
+pytest-asyncio = "0.21.1"
+
+[tool.poetry.scripts]
+start-proxy = "azure_rm_proxy.app.main:start"
+generate-test-harnesses = "azure_rm_proxy.tools.generate_test_harnesses:main"
+azure-rm-proxy-client = "azure_rm_proxy.client.cli:app"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
