@@ -12,26 +12,29 @@ from . import CacheType
 
 logger = logging.getLogger(__name__)
 
+
 class CacheFactory:
     """Factory class for creating cache instances."""
-    
+
     @staticmethod
     def create_cache(settings: Settings) -> BaseCache:
         """
         Create a cache instance based on settings.
-        
+
         Args:
             settings: Application settings
-            
+
         Returns:
             A cache instance
         """
-        cache_type = getattr(settings, 'cache_type', CacheType.MEMORY.value)
-        
+        cache_type = getattr(settings, "cache_type", CacheType.MEMORY.value)
+
         if cache_type == CacheType.REDIS.value:
-            redis_url = getattr(settings, 'redis_url', None)
+            redis_url = getattr(settings, "redis_url", None)
             if not redis_url:
-                logger.warning("Redis cache type specified but no Redis URL provided. Falling back to memory cache.")
+                logger.warning(
+                    "Redis cache type specified but no Redis URL provided. Falling back to memory cache."
+                )
                 return MemoryCache()
             return RedisCache(redis_url=redis_url)
         elif cache_type == CacheType.NO_CACHE.value:

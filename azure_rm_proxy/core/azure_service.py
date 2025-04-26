@@ -10,21 +10,22 @@ from .mixins import (
     ResourceGroupMixin,
     VirtualMachineMixin,
     NetworkMixin,
-    AADGroupMixin
+    AADGroupMixin,
 )
 
 logger = logging.getLogger(__name__)
+
 
 class AzureResourceService(
     SubscriptionMixin,
     ResourceGroupMixin,
     VirtualMachineMixin,
     NetworkMixin,
-    AADGroupMixin
+    AADGroupMixin,
 ):
     """
     Service layer for interacting with Azure resources.
-    
+
     This class uses mixins to organize functionality by resource type:
     - SubscriptionMixin: Subscription-related operations
     - ResourceGroupMixin: Resource group-related operations
@@ -36,7 +37,7 @@ class AzureResourceService(
     def __init__(self, credential, cache: CacheStrategy, limiter: ConcurrencyLimiter):
         """
         Initialize the Azure Resource Service.
-        
+
         Args:
             credential: Azure credential object
             cache: Cache strategy to use

@@ -8,10 +8,10 @@ from .network_mixin import NetworkMixin
 from .aad_group_mixin import AADGroupMixin
 
 __all__ = [
-    'BaseAzureResourceMixin',
-    'SubscriptionMixin',
-    'ResourceGroupMixin',
-    'VirtualMachineMixin',
-    'NetworkMixin',
-    'AADGroupMixin'
+    "BaseAzureResourceMixin",
+    "SubscriptionMixin",
+    "ResourceGroupMixin",
+    "VirtualMachineMixin",
+    "NetworkMixin",
+    "AADGroupMixin",
 ]

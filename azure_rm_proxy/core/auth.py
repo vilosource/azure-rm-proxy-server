@@ -3,6 +3,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def get_credentials():
     """Obtain Azure credentials via DefaultAzureCredential (env vars or CLI)."""
     try:
