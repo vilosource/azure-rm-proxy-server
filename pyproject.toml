@@ -21,6 +21,7 @@ rich = "13.4.2"
 black = "^25.1.0"
 redis = "^5.0.1"
 anyio = "^4.9.0"
+gunicorn = "^23.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "7.4.4"

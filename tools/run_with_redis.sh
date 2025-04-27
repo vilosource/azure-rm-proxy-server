@@ -36,13 +36,12 @@ export CACHE_TYPE=redis
 export REDIS_URL=redis://localhost:6379/0
 export REDIS_PREFIX="azure_rm_proxy:"
 
-# Start the Azure RM Proxy Server
-echo "Starting Azure RM Proxy Server with Redis caching..."
+# Start the Azure RM Proxy Server with Gunicorn and UvicornWorker
+echo "Starting Azure RM Proxy Server with Redis caching using Gunicorn and UvicornWorker..."
 echo "Cache settings:"
 echo "  CACHE_TYPE: $CACHE_TYPE"
 echo "  REDIS_URL: $REDIS_URL"
 echo "  REDIS_PREFIX: $REDIS_PREFIX"
 echo ""
 
-# Run the server using the poetry script entry point
-poetry run start-proxy
+gunicorn -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8000 --timeout 300 "azure_rm_proxy.app.main:app"

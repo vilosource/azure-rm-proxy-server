@@ -1,5 +1,5 @@
 # Azure RM Proxy Server Makefile
-.PHONY: help install run run-mock run-with-redis test lint format clean fixtures harnesses docs test-mock-service test-integration test-integration-mock test-report-dir test-redis-cache
+.PHONY: help install run run-mock run-with-redis test lint format clean fixtures harnesses docs test-mock-service test-integration test-integration-mock test-report-dir test-redis-cache validate_api_endpoints force-stop-server
 
 # Default target executed when no arguments are given to make.
 help:
@@ -24,6 +24,8 @@ help:
 	@echo "  make harnesses        Generate test harnesses"
 	@echo "  make docs             Build documentation"
 	@echo "  make test-redis-cache Test Redis cache functionality"
+	@echo "  make validate_api_endpoints Validate API endpoints"
+	@echo "  make force-stop-server Forcefully stop the server process"
 	@echo ""
 
 # Install dependencies
@@ -74,6 +76,10 @@ test-integration-mock: test-report-dir
 test-redis-cache:
 	./tools/test_redis_cache.py
 
+# Validate API endpoints
+validate_api_endpoints:
+	pytest azure_rm_proxy/tests/verification_tests/test_api_endpoints.py --log-cli-level=INFO
+
 # Run linters
 lint:
 	poetry run flake8 azure_rm_proxy
@@ -111,3 +117,8 @@ docs:
 # Test reports directory
 test-report-dir:
 	mkdir -p ./test_reports
+
+# Forcefully stop the server process
+force-stop-server:
+	pkill -f start-proxy || true
+	@echo "Server forcefully stopped."
