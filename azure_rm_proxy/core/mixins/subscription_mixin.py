@@ -36,7 +36,7 @@ class SubscriptionMixin(BaseAzureResourceMixin):
             cached_data = self.cache.get(cache_key)
             if cached_data:
                 self._log_debug("Cache hit for subscriptions")
-                return cached_data
+                return self._validate_cached_data(cached_data, SubscriptionModel)
 
         self._log_info("Fetching subscriptions from Azure")
         try:

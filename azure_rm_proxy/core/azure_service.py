@@ -11,6 +11,7 @@ from .mixins import (
     VirtualMachineMixin,
     NetworkMixin,
     AADGroupMixin,
+    RouteMixin,
 )
 
 logger = logging.getLogger(__name__)
@@ -22,6 +23,7 @@ class AzureResourceService(
     VirtualMachineMixin,
     NetworkMixin,
     AADGroupMixin,
+    RouteMixin,
 ):
     """
     Service layer for interacting with Azure resources.
@@ -32,6 +34,7 @@ class AzureResourceService(
     - VirtualMachineMixin: VM-related operations
     - NetworkMixin: Network interface, NSG, and route-related operations
     - AADGroupMixin: Azure AD group-related operations
+    - RouteMixin: Route table-related operations
     """
 
     def __init__(self, credential, cache: CacheStrategy, limiter: ConcurrencyLimiter):

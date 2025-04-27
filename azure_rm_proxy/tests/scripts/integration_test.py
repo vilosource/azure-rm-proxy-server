@@ -237,7 +237,27 @@ class APIIntegrationTest:
                 logger.info(f"Using resource group {rg_name} for further tests")
 
                 # Test virtual machines endpoints
-                self.test_virtual_machines(sub_id, rg_name)
+                vms, vm_detail = self.test_virtual_machines(sub_id, rg_name)
+                
+                # Test route table endpoints
+                route_tables = self.test_route_tables(sub_id)
+                if route_tables and len(route_tables) > 0:
+                    # Test route table details endpoint with the first route table
+                    rt_name = route_tables[0].get("name")
+                    rt_resource_group = route_tables[0].get("resource_group")
+                    logger.info(f"Using route table {rt_name} for further tests")
+                    
+                    self.test_route_table_details(sub_id, rt_resource_group, rt_name)
+                    
+                    # If we have VM details, test VM routes endpoint
+                    if vms and len(vms) > 0:
+                        vm_name = vms[0].get("name")
+                        self.test_vm_effective_routes(sub_id, rg_name, vm_name)
+                        
+                        # If VM has network interfaces, test NIC routes endpoint
+                        if vm_detail and "network_interfaces" in vm_detail and vm_detail["network_interfaces"]:
+                            nic_name = vm_detail["network_interfaces"][0].get("name")
+                            self.test_nic_effective_routes(sub_id, rg_name, nic_name)
 
             # Test VM shortcuts endpoints
             self.test_vm_shortcuts()
@@ -843,6 +863,314 @@ class APIIntegrationTest:
         except Exception as e:
             test.complete(None, False, str(e))
             logger.error(f"❌ VM hostnames endpoint test error: {e}")
+            return []
+
+    def test_route_tables(self, subscription_id: str) -> List[Dict]:
+        """Test the route tables endpoint"""
+        test = EndpointTest(
+            name="List Route Tables",
+            url=f"{self.api_url}/subscriptions/{subscription_id}/routetables",
+        )
+        self.test_results.append(test)
+
+        test.start()
+        try:
+            response = self.session.get(test.url, timeout=self.timeout)
+
+            # Parse and validate JSON response
+            success = response.status_code == 200
+            if success:
+                data = response.json()
+                # Validate response structure - expect list of route table summary objects
+                success = isinstance(data, list)
+
+                # Additional validations
+                if success and data:
+                    # Validate first route table has expected fields
+                    rt = data[0]
+                    has_expected_fields = all(
+                        field in rt for field in ["id", "name", "location", "resource_group", "route_count", "subnet_count"]
+                    )
+                    test.add_validation(
+                        "Has Expected Fields",
+                        has_expected_fields,
+                        "Route table should have id, name, location, resource_group, route_count, and subnet_count fields",
+                    )
+
+                test.add_validation("Status Code", True, "Expected: 200")
+                test.add_validation(
+                    "Response Type",
+                    isinstance(data, list),
+                    "Expected a list of route tables",
+                )
+                test.add_validation(
+                    "Found Route Tables",
+                    len(data) > 0,
+                    f"Found {len(data)} route tables",
+                )
+
+                if success:
+                    logger.info(
+                        f"✅ Successfully tested route tables endpoint. Found {len(data)} route tables."
+                    )
+                else:
+                    logger.warning(
+                        f"⚠️ Route tables endpoint returned data but validation failed"
+                    )
+
+                test.complete(response, success)
+                return data if success else []
+
+            else:
+                test.add_validation(
+                    "Status Code", False, f"Expected: 200, Got: {response.status_code}"
+                )
+                test.complete(response, False)
+                logger.error(
+                    f"❌ Route tables endpoint test failed: {response.status_code}"
+                )
+                return []
+
+        except Exception as e:
+            test.complete(None, False, str(e))
+            logger.error(f"❌ Route tables endpoint test error: {e}")
+            return []
+
+    def test_route_table_details(
+        self, subscription_id: str, resource_group_name: str, route_table_name: str
+    ) -> Dict:
+        """Test the route table details endpoint"""
+        test = EndpointTest(
+            name="Route Table Details",
+            url=f"{self.api_url}/subscriptions/{subscription_id}/resourcegroups/{resource_group_name}/routetables/{route_table_name}",
+        )
+        self.test_results.append(test)
+
+        test.start()
+        try:
+            response = self.session.get(test.url, timeout=self.timeout)
+
+            # Parse and validate JSON response
+            success = response.status_code == 200
+            if success:
+                data = response.json()
+
+                # Validate basic fields
+                has_basic_fields = all(
+                    field in data
+                    for field in ["id", "name", "location", "resource_group", "routes", "subnets"]
+                )
+                test.add_validation(
+                    "Has Basic Fields",
+                    has_basic_fields,
+                    "Route table should have id, name, location, resource_group, routes, and subnets fields",
+                )
+
+                # Validate routes
+                has_routes = "routes" in data and isinstance(
+                    data["routes"], list
+                )
+                test.add_validation(
+                    "Has Routes Array",
+                    has_routes,
+                    "Route table should have routes array",
+                )
+
+                # Validate route entries if present
+                if has_routes and data["routes"]:
+                    route = data["routes"][0]
+                    route_has_fields = all(
+                        field in route
+                        for field in [
+                            "name",
+                            "address_prefix",
+                            "next_hop_type",
+                        ]
+                    )
+                    test.add_validation(
+                        "Route Entry Format",
+                        route_has_fields,
+                        "Route entries should have expected fields",
+                    )
+
+                test.add_validation("Status Code", True, "Expected: 200")
+
+                # Overall success
+                success = has_basic_fields and has_routes
+
+                if success:
+                    logger.info(
+                        f"✅ Successfully tested route table details endpoint for {route_table_name}"
+                    )
+                else:
+                    logger.warning(
+                        f"⚠️ Route table details endpoint returned data but validation failed for {route_table_name}"
+                    )
+
+                test.complete(response, success)
+                return data if success else {}
+
+            else:
+                test.add_validation(
+                    "Status Code", False, f"Expected: 200, Got: {response.status_code}"
+                )
+                test.complete(response, False)
+                logger.error(
+                    f"❌ Route table details endpoint test failed for {route_table_name}: {response.status_code}"
+                )
+                return {}
+
+        except Exception as e:
+            test.complete(None, False, str(e))
+            logger.error(f"❌ Route table details endpoint test error for {route_table_name}: {e}")
+            return {}
+
+    def test_vm_effective_routes(
+        self, subscription_id: str, resource_group_name: str, vm_name: str
+    ) -> List[Dict]:
+        """Test the VM effective routes endpoint"""
+        test = EndpointTest(
+            name="VM Effective Routes",
+            url=f"{self.api_url}/subscriptions/{subscription_id}/resourcegroups/{resource_group_name}/virtualmachines/{vm_name}/routes",
+        )
+        self.test_results.append(test)
+
+        test.start()
+        try:
+            response = self.session.get(test.url, timeout=self.timeout)
+
+            # Parse and validate JSON response
+            success = response.status_code == 200
+            if success:
+                data = response.json()
+
+                # Validate response structure
+                success = isinstance(data, list)
+
+                test.add_validation("Status Code", True, "Expected: 200")
+                test.add_validation(
+                    "Response Type",
+                    isinstance(data, list),
+                    "Expected a list of routes",
+                )
+
+                if data:
+                    # Validate first route has expected fields
+                    route = data[0]
+                    has_expected_fields = all(
+                        field in route
+                        for field in ["address_prefix", "next_hop_type"]
+                    )
+                    test.add_validation(
+                        "Has Expected Fields",
+                        has_expected_fields,
+                        "Route should have address_prefix and next_hop_type fields",
+                    )
+
+                    test.add_validation(
+                        "Found Routes", True, f"Found {len(data)} routes"
+                    )
+                    logger.info(
+                        f"✅ Successfully tested VM effective routes endpoint for {vm_name}. Found {len(data)} routes."
+                    )
+                else:
+                    test.add_validation(
+                        "Found Routes", True, "No routes found, but response is valid"
+                    )
+                    logger.info(
+                        f"✅ Successfully tested VM effective routes endpoint for {vm_name}. No routes found."
+                    )
+
+                test.complete(response, success)
+                return data if success else []
+
+            else:
+                test.add_validation(
+                    "Status Code", False, f"Expected: 200, Got: {response.status_code}"
+                )
+                test.complete(response, False)
+                logger.error(
+                    f"❌ VM effective routes endpoint test failed for {vm_name}: {response.status_code}"
+                )
+                return []
+
+        except Exception as e:
+            test.complete(None, False, str(e))
+            logger.error(f"❌ VM effective routes endpoint test error for {vm_name}: {e}")
+            return []
+
+    def test_nic_effective_routes(
+        self, subscription_id: str, resource_group_name: str, nic_name: str
+    ) -> List[Dict]:
+        """Test the NIC effective routes endpoint"""
+        test = EndpointTest(
+            name="NIC Effective Routes",
+            url=f"{self.api_url}/subscriptions/{subscription_id}/resourcegroups/{resource_group_name}/networkinterfaces/{nic_name}/routes",
+        )
+        self.test_results.append(test)
+
+        test.start()
+        try:
+            response = self.session.get(test.url, timeout=self.timeout)
+
+            # Parse and validate JSON response
+            success = response.status_code == 200
+            if success:
+                data = response.json()
+
+                # Validate response structure
+                success = isinstance(data, list)
+
+                test.add_validation("Status Code", True, "Expected: 200")
+                test.add_validation(
+                    "Response Type",
+                    isinstance(data, list),
+                    "Expected a list of routes",
+                )
+
+                if data:
+                    # Validate first route has expected fields
+                    route = data[0]
+                    has_expected_fields = all(
+                        field in route
+                        for field in ["address_prefix", "next_hop_type"]
+                    )
+                    test.add_validation(
+                        "Has Expected Fields",
+                        has_expected_fields,
+                        "Route should have address_prefix and next_hop_type fields",
+                    )
+
+                    test.add_validation(
+                        "Found Routes", True, f"Found {len(data)} routes"
+                    )
+                    logger.info(
+                        f"✅ Successfully tested NIC effective routes endpoint for {nic_name}. Found {len(data)} routes."
+                    )
+                else:
+                    test.add_validation(
+                        "Found Routes", True, "No routes found, but response is valid"
+                    )
+                    logger.info(
+                        f"✅ Successfully tested NIC effective routes endpoint for {nic_name}. No routes found."
+                    )
+
+                test.complete(response, success)
+                return data if success else []
+
+            else:
+                test.add_validation(
+                    "Status Code", False, f"Expected: 200, Got: {response.status_code}"
+                )
+                test.complete(response, False)
+                logger.error(
+                    f"❌ NIC effective routes endpoint test failed for {nic_name}: {response.status_code}"
+                )
+                return []
+
+        except Exception as e:
+            test.complete(None, False, str(e))
+            logger.error(f"❌ NIC effective routes endpoint test error for {nic_name}: {e}")
             return []
 
     def generate_report(self):

@@ -6,6 +6,7 @@ from .resource_group_mixin import ResourceGroupMixin
 from .virtual_machine_mixin import VirtualMachineMixin
 from .network_mixin import NetworkMixin
 from .aad_group_mixin import AADGroupMixin
+from .route_mixin import RouteMixin
 
 __all__ = [
     "BaseAzureResourceMixin",
@@ -14,4 +15,5 @@ __all__ = [
     "VirtualMachineMixin",
     "NetworkMixin",
     "AADGroupMixin",
+    "RouteMixin",
 ]

@@ -51,7 +51,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                 self._log_debug(
                     f"Cache hit for VMs in resource group {resource_group_name} in subscription {subscription_id}"
                 )
-                return cached_data
+                return self._validate_cached_data(cached_data, VirtualMachineModel)
 
         self._log_info(
             f"Fetching VMs for resource group {resource_group_name} in subscription {subscription_id} from Azure"
@@ -171,7 +171,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
             cached_data = self.cache.get(cache_key)
             if cached_data:
                 self._log_debug(f"Cache hit for VM details of {vm_name}")
-                return cached_data
+                return self._validate_cached_data(cached_data, VirtualMachineDetail)
 
         self._log_info(
             f"Fetching VM details for {vm_name} in RG {resource_group_name} in subscription {subscription_id} from Azure"
@@ -258,7 +258,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
             cached_data = self.cache.get(cache_key)
             if cached_data:
                 self._log_debug("Cache hit for all VMs")
-                return cached_data
+                return self._validate_cached_data(cached_data, VirtualMachineWithContext)
 
         self._log_info("Fetching all VMs across all subscriptions")
         try:
@@ -328,7 +328,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
             cached_data = self.cache.get(cache_key)
             if cached_data:
                 self._log_debug(f"Cache hit for VM {vm_name}")
-                return cached_data
+                return self._validate_cached_data(cached_data, VirtualMachineDetail)
 
         self._log_info(f"Finding VM {vm_name} across all subscriptions")
         try:
@@ -401,7 +401,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
             cached_data = self.cache.get(cache_key)
             if cached_data:
                 self._log_debug("Cache hit for VM hostnames")
-                return cached_data
+                return self._validate_cached_data(cached_data, VirtualMachineHostname)
 
         self._log_info(
             f"Fetching VM hostnames for subscription {'all' if subscription_id is None else subscription_id}"
@@ -496,7 +496,130 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
         subscriptions = await self.get_subscriptions()
 
         for sub in subscriptions:
-            if sub.id == subscription_id:
-                return sub
+            # Handle if sub is a dictionary (from cache) instead of a SubscriptionModel
+            if isinstance(sub, dict):
+                if sub.get('id') == subscription_id:
+                    return SubscriptionModel.model_validate(sub)
+            else:
+                if sub.id == subscription_id:
+                    return sub
 
         raise ResourceNotFoundError(f"Subscription {subscription_id} not found")
+
+    async def get_vm_report(
+        self,
+        refresh_cache: bool = False,
+    ) -> List["VirtualMachineReport"]:
+        """
+        Generate a report of all virtual machines with detailed information.
+
+        Args:
+            refresh_cache: Whether to refresh the cache
+
+        Returns:
+            List of virtual machine report objects with detailed information
+        """
+        cache_key = self._get_cache_key(["vm_report"])
+        self._log_debug(f"Attempting to get VM report with refresh_cache={refresh_cache}")
+
+        if not refresh_cache:
+            cached_data = self.cache.get(cache_key)
+            if cached_data:
+                self._log_debug("Cache hit for VM report")
+                # Import here to avoid circular import
+                from ..models import VirtualMachineReport
+                return self._validate_cached_data(cached_data, VirtualMachineReport)
+
+        self._log_info("Generating VM report across all subscriptions")
+
+        try:
+            # Get all VMs with basic context
+            all_vms = await self.get_all_virtual_machines(refresh_cache=refresh_cache)
+            self._log_info(f"Found {len(all_vms)} VMs across all subscriptions for report")
+            
+            report_entries = []
+            
+            # Get hostnames to reuse across all VMs
+            self._log_debug("Fetching VM hostnames for all subscriptions")
+            all_hostnames = await self.get_vm_hostnames(refresh_cache=refresh_cache)
+            hostname_map = {vm.vm_name: vm.hostname for vm in all_hostnames}
+            
+            for vm in all_vms:
+                try:
+                    # Get detailed VM information
+                    vm_detail = await self.get_vm_details(
+                        vm.subscription_id, 
+                        vm.resource_group_name, 
+                        vm.name, 
+                        refresh_cache=refresh_cache
+                    )
+                    
+                    # Get VM properties for report
+                    private_ips = []
+                    public_ips = []
+                    
+                    # Extract IP addresses from network interfaces
+                    for nic in vm_detail.network_interfaces:
+                        private_ips.extend(nic.private_ip_addresses)
+                        public_ips.extend(nic.public_ip_addresses)
+                    
+                    # Get VM OS disk size
+                    os_disk_size = None
+                    try:
+                        compute_client = AzureClientFactory.create_compute_client(
+                            vm.subscription_id, self.credential
+                        )
+                        
+                        async with self.limiter:
+                            azure_vm = compute_client.virtual_machines.get(
+                                vm.resource_group_name, vm.name
+                            )
+                            if (hasattr(azure_vm, "storage_profile") and 
+                                azure_vm.storage_profile and
+                                hasattr(azure_vm.storage_profile, "os_disk") and
+                                azure_vm.storage_profile.os_disk and
+                                hasattr(azure_vm.storage_profile.os_disk, "disk_size_gb")):
+                                os_disk_size = azure_vm.storage_profile.os_disk.disk_size_gb
+                    except Exception as e:
+                        self._log_warning(f"Error fetching OS disk size for VM {vm.name}: {e}")
+                    
+                    # Get environment and purpose from tags
+                    environment = None
+                    purpose = None
+                    try:
+                        if (hasattr(azure_vm, "tags") and azure_vm.tags):
+                            environment = azure_vm.tags.get("environment")
+                            purpose = azure_vm.tags.get("purpose")
+                    except Exception as e:
+                        self._log_warning(f"Error fetching tags for VM {vm.name}: {e}")
+                    
+                    # Create report entry
+                    from ..models import VirtualMachineReport
+                    report_entry = VirtualMachineReport(
+                        hostname=hostname_map.get(vm.name),
+                        os=vm_detail.os_type,
+                        environment=environment,
+                        purpose=purpose,
+                        ip_addresses=private_ips,
+                        public_ip_addresses=public_ips,
+                        vm_name=vm.name,
+                        vm_size=vm.vm_size,
+                        os_disk_size_gb=os_disk_size,
+                        resource_group=vm.resource_group_name,
+                        location=vm.location,
+                        subscription_id=vm.subscription_id,
+                        subscription_name=vm.subscription_name
+                    )
+                    report_entries.append(report_entry)
+                    
+                except Exception as e:
+                    self._log_warning(f"Error processing VM {vm.name} for report: {e}")
+                    continue
+            
+            self._set_cache_with_ttl(cache_key, report_entries, settings.cache_ttl)
+            self._log_info(f"Generated report for {len(report_entries)} VMs")
+            return report_entries
+            
+        except Exception as e:
+            self._log_error(f"Error generating VM report: {e}")
+            raise

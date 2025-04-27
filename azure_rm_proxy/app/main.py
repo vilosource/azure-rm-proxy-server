@@ -11,6 +11,9 @@ from ..api import (
     virtual_machines,
     vm_shortcuts,
     vm_hostnames,
+    vm_report,
+    routes,
+    root,  # Import the root router
 )
 from .config import settings
 
@@ -77,6 +80,9 @@ app.include_router(resource_groups.router)
 app.include_router(virtual_machines.router)
 app.include_router(vm_shortcuts.router)
 app.include_router(vm_hostnames.router)
+app.include_router(vm_report.router)
+app.include_router(routes.router)
+app.include_router(root.router)  # Include the root router
 
 
 @app.get("/api/ping")

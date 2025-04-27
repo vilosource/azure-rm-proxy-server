@@ -39,7 +39,7 @@ class ResourceGroupMixin(BaseAzureResourceMixin):
                 self._log_debug(
                     f"Cache hit for resource groups in subscription {subscription_id}"
                 )
-                return cached_data
+                return self._validate_cached_data(cached_data, ResourceGroupModel)
 
         self._log_info(
             f"Fetching resource groups for subscription {subscription_id} from Azure"

@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 from pydantic import BaseModel
 
 
@@ -38,6 +38,40 @@ class RouteModel(BaseModel):
     route_origin: str
 
 
+class RouteEntryModel(BaseModel):
+    """Model for a route entry within a route table"""
+    name: str
+    address_prefix: str
+    next_hop_type: str
+    next_hop_ip_address: Optional[str] = None
+
+
+class RouteTableSummaryModel(BaseModel):
+    """Summary model for a route table"""
+    id: str
+    name: str
+    location: str
+    resource_group: str
+    route_count: int
+    subnet_count: int
+    provisioning_state: str
+    subscription_id: Optional[str] = None
+
+
+class RouteTableModel(BaseModel):
+    """Detailed model for a route table"""
+    id: str
+    name: str
+    location: str
+    resource_group: str
+    routes: List[RouteEntryModel]
+    subnets: List[str] = []
+    provisioning_state: str
+    disable_bgp_route_propagation: bool = False
+    tags: Optional[Dict[str, str]] = None
+    subscription_id: Optional[str] = None
+
+
 class AADGroupModel(BaseModel):
     id: str
     display_name: Optional[str] = None
@@ -73,3 +107,20 @@ class VirtualMachineHostname(BaseModel):
 
     vm_name: str
     hostname: Optional[str] = None
+
+
+class VirtualMachineReport(BaseModel):
+    """Model for VM report with detailed information"""
+    hostname: Optional[str] = None
+    os: Optional[str] = None
+    environment: Optional[str] = None
+    purpose: Optional[str] = None
+    ip_addresses: List[str] = []
+    public_ip_addresses: List[str] = []
+    vm_name: str
+    vm_size: str
+    os_disk_size_gb: Optional[float] = None
+    resource_group: str
+    location: str
+    subscription_id: str
+    subscription_name: Optional[str] = None

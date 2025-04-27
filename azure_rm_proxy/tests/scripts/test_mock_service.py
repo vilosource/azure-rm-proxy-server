@@ -15,6 +15,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+import pytest  # Add pytest import
 
 # Set up logging
 logging.basicConfig(
@@ -28,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 from azure_rm_proxy.tools.mock_azure_service import MockAzureResourceService
 
 
+@pytest.mark.asyncio  # Add this marker to tell pytest this is an async test
 async def test_mock_service():
     """Test the MockAzureResourceService with generated test harnesses."""
     # Initialize the mock service with test harnesses
