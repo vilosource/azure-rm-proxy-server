@@ -58,12 +58,16 @@ class NetworkMixin(BaseAzureResourceMixin):
                     nic, network_client, nic_rg_name, vm_name
                 )
 
+                # Use _convert_to_model for consistent model creation
                 network_interfaces.append(
-                    NetworkInterfaceModel(
-                        id=nic.id,
-                        name=nic.name,
-                        private_ip_addresses=private_ips,
-                        public_ip_addresses=public_ips,
+                    self._convert_to_model(
+                        {
+                            "id": nic.id,
+                            "name": nic.name,
+                            "private_ip_addresses": private_ips,
+                            "public_ip_addresses": public_ips,
+                        },
+                        NetworkInterfaceModel
                     )
                 )
             except Exception as e:
@@ -190,47 +194,65 @@ class NetworkMixin(BaseAzureResourceMixin):
 
         # Default NSG rules that are always present in Azure
         default_rules = [
-            NsgRuleModel(
-                name="AllowVnetInBound",
-                direction="Inbound",
-                protocol="*",
-                port_range="*",
-                access="Allow",
+            self._convert_to_model(
+                {
+                    "name": "AllowVnetInBound",
+                    "direction": "Inbound",
+                    "protocol": "*",
+                    "port_range": "*",
+                    "access": "Allow",
+                },
+                NsgRuleModel
             ),
-            NsgRuleModel(
-                name="AllowAzureLoadBalancerInBound",
-                direction="Inbound",
-                protocol="*",
-                port_range="*",
-                access="Allow",
+            self._convert_to_model(
+                {
+                    "name": "AllowAzureLoadBalancerInBound",
+                    "direction": "Inbound",
+                    "protocol": "*",
+                    "port_range": "*",
+                    "access": "Allow",
+                },
+                NsgRuleModel
             ),
-            NsgRuleModel(
-                name="DenyAllInBound",
-                direction="Inbound",
-                protocol="*",
-                port_range="*",
-                access="Deny",
+            self._convert_to_model(
+                {
+                    "name": "DenyAllInBound",
+                    "direction": "Inbound",
+                    "protocol": "*",
+                    "port_range": "*",
+                    "access": "Deny",
+                },
+                NsgRuleModel
             ),
-            NsgRuleModel(
-                name="AllowVnetOutBound",
-                direction="Outbound",
-                protocol="*",
-                port_range="*",
-                access="Allow",
+            self._convert_to_model(
+                {
+                    "name": "AllowVnetOutBound",
+                    "direction": "Outbound",
+                    "protocol": "*",
+                    "port_range": "*",
+                    "access": "Allow",
+                },
+                NsgRuleModel
             ),
-            NsgRuleModel(
-                name="AllowInternetOutBound",
-                direction="Outbound",
-                protocol="*",
-                port_range="*",
-                access="Allow",
+            self._convert_to_model(
+                {
+                    "name": "AllowInternetOutBound",
+                    "direction": "Outbound",
+                    "protocol": "*",
+                    "port_range": "*",
+                    "access": "Allow",
+                },
+                NsgRuleModel
             ),
-            NsgRuleModel(
-                name="DenyAllOutBound",
-                direction="Outbound",
-                protocol="*",
-                port_range="*",
-                access="Deny",
+            self._convert_to_model(
+                {
+                    "name": "DenyAllOutBound",
+                    "direction": "Outbound",
+                    "protocol": "*",
+                    "port_range": "*",
+                    "access": "Deny",
+                },
+                NsgRuleModel
             ),
         ]
 
@@ -275,12 +297,15 @@ class NetworkMixin(BaseAzureResourceMixin):
                                     )
 
                                     effective_nsg_rules.append(
-                                        NsgRuleModel(
-                                            name=rule.name,
-                                            direction=str(rule.direction),
-                                            protocol=str(rule.protocol),
-                                            port_range=port_range,
-                                            access=str(rule.access),
+                                        self._convert_to_model(
+                                            {
+                                                "name": rule.name,
+                                                "direction": str(rule.direction),
+                                                "protocol": str(rule.protocol),
+                                                "port_range": port_range,
+                                                "access": str(rule.access),
+                                            },
+                                            NsgRuleModel
                                         )
                                     )
 
@@ -300,74 +325,47 @@ class NetworkMixin(BaseAzureResourceMixin):
 
                 if hasattr(
                     network_client.network_interfaces,
-                    "begin_list_effective_network_security_groups",
+                    "begin_get_effective_network_security_group",
                 ):
-                    poller = network_client.network_interfaces.begin_list_effective_network_security_groups(
+                    poller = network_client.network_interfaces.begin_get_effective_network_security_group(
                         nic_rg_name, first_nic_name
                     )
 
-                    # Wait for the operation to complete (non-async approach for compatibility)
+                    # Wait for the operation to complete
                     result = poller.result()
 
                     # Process the result
                     if result:
                         # Try different result formats
-                        if hasattr(result, "value"):
-                            for nsg_result in result.value:
-                                if hasattr(nsg_result, "effective_security_rules"):
-                                    for rule in nsg_result.effective_security_rules:
-                                        port_range = self._get_port_range(rule)
-                                        effective_nsg_rules.append(
-                                            NsgRuleModel(
-                                                name=(
-                                                    rule.name
-                                                    if hasattr(rule, "name")
-                                                    else "Unnamed"
-                                                ),
-                                                direction=(
-                                                    str(rule.direction)
-                                                    if hasattr(rule, "direction")
-                                                    else "Unknown"
-                                                ),
-                                                protocol=(
-                                                    str(rule.protocol)
-                                                    if hasattr(rule, "protocol")
-                                                    else "Unknown"
-                                                ),
-                                                port_range=port_range,
-                                                access=(
-                                                    str(rule.access)
-                                                    if hasattr(rule, "access")
-                                                    else "Unknown"
-                                                ),
-                                            )
-                                        )
-                        elif hasattr(result, "effective_security_rules"):
+                        if hasattr(result, "effective_security_rules"):
                             for rule in result.effective_security_rules:
                                 port_range = self._get_port_range(rule)
                                 effective_nsg_rules.append(
-                                    NsgRuleModel(
-                                        name=(
-                                            rule.name
-                                            if hasattr(rule, "name")
-                                            else "Unnamed"
-                                        ),
-                                        direction=(
-                                            str(rule.direction)
-                                            if hasattr(rule, "direction")
-                                            else "Unknown"
-                                        ),
-                                        protocol=(
-                                            str(rule.protocol)
-                                            if hasattr(rule, "protocol")
-                                            else "Unknown"
-                                        ),
-                                        port_range=port_range,
-                                        access=(
-                                            str(rule.access)
-                                            if hasattr(rule, "access")
-                                            else "Unknown"
-                                        ),
+                                    self._convert_to_model(
+                                        {
+                                            "name": (
+                                                rule.name
+                                                if hasattr(rule, "name")
+                                                else "Unnamed"
+                                            ),
+                                            "direction": (
+                                                str(rule.direction)
+                                                if hasattr(rule, "direction")
+                                                else "Unknown"
+                                            ),
+                                            "protocol": (
+                                                str(rule.protocol)
+                                                if hasattr(rule, "protocol")
+                                                else "Unknown"
+                                            ),
+                                            "port_range": port_range,
+                                            "access": (
+                                                str(rule.access)
+                                                if hasattr(rule, "access")
+                                                else "Unknown"
+                                            ),
+                                        },
+                                        NsgRuleModel
                                     )
                                 )
 
@@ -429,33 +427,92 @@ class NetworkMixin(BaseAzureResourceMixin):
 
         # Create some standard default routes that are typically present
         default_routes = [
-            RouteModel(
-                address_prefix="0.0.0.0/0",
-                next_hop_type="Internet",
-                next_hop_ip=None,
-                route_origin="Default",
+            self._convert_to_model(
+                {
+                    "address_prefix": "0.0.0.0/0",
+                    "next_hop_type": "Internet",
+                    "next_hop_ip": None,
+                    "route_origin": "Default",
+                },
+                RouteModel
             ),
-            RouteModel(
-                address_prefix="10.0.0.0/8",
-                next_hop_type="VnetLocal",
-                next_hop_ip=None,
-                route_origin="Default",
+            self._convert_to_model(
+                {
+                    "address_prefix": "10.0.0.0/8",
+                    "next_hop_type": "VnetLocal",
+                    "next_hop_ip": None,
+                    "route_origin": "Default",
+                },
+                RouteModel
             ),
-            RouteModel(
-                address_prefix="172.16.0.0/12",
-                next_hop_type="VnetLocal",
-                next_hop_ip=None,
-                route_origin="Default",
+            self._convert_to_model(
+                {
+                    "address_prefix": "172.16.0.0/12",
+                    "next_hop_type": "VnetLocal",
+                    "next_hop_ip": None,
+                    "route_origin": "Default",
+                },
+                RouteModel
             ),
-            RouteModel(
-                address_prefix="192.168.0.0/16",
-                next_hop_type="VnetLocal",
-                next_hop_ip=None,
-                route_origin="Default",
+            self._convert_to_model(
+                {
+                    "address_prefix": "192.168.0.0/16",
+                    "next_hop_type": "VnetLocal",
+                    "next_hop_ip": None,
+                    "route_origin": "Default",
+                },
+                RouteModel
             ),
         ]
 
         try:
+            # Try to use the begin_get_effective_route_table method
+            try:
+                self._log_debug("Trying effective route table API")
+                
+                # Check if the method exists in this SDK version
+                if hasattr(network_client.network_interfaces, "begin_get_effective_route_table"):
+                    poller = network_client.network_interfaces.begin_get_effective_route_table(
+                        nic_rg_name, first_nic_name
+                    )
+                    
+                    result = poller.result()
+                    
+                    if result and hasattr(result, 'value'):
+                        for route in result.value:
+                            # Handle address_prefix which might be a list or a string
+                            address_prefix = route.address_prefix
+                            if isinstance(address_prefix, list):
+                                address_prefix = address_prefix[0] if address_prefix else ""
+                            
+                            # Handle next_hop_ip_address which might be a list or a string
+                            next_hop_ip = None
+                            if hasattr(route, 'next_hop_ip_address'):
+                                next_hop_ip = route.next_hop_ip_address
+                                if isinstance(next_hop_ip, list):
+                                    next_hop_ip = next_hop_ip[0] if next_hop_ip else None
+                            
+                            effective_routes.append(
+                                self._convert_to_model(
+                                    {
+                                        "address_prefix": address_prefix,
+                                        "next_hop_type": route.next_hop_type,
+                                        "next_hop_ip": next_hop_ip,
+                                        "route_origin": route.source if hasattr(route, 'source') else "Unknown"
+                                    },
+                                    RouteModel
+                                )
+                            )
+                        
+                        # If we got routes, we're done
+                        if effective_routes:
+                            self._log_debug(
+                                f"Fetched {len(effective_routes)} routes using effective route table API"
+                            )
+                            return effective_routes
+            except Exception as api_error:
+                self._log_debug(f"Effective route table API failed: {str(api_error)}")
+
             # Try to get route table directly from the NIC's subnet
             try:
                 self._log_debug("Trying direct method to get routes from NIC subnet")
@@ -520,13 +577,16 @@ class NetworkMixin(BaseAzureResourceMixin):
                                                     ):
                                                         for route in rt.routes:
                                                             effective_routes.append(
-                                                                RouteModel(
-                                                                    address_prefix=route.address_prefix,
-                                                                    next_hop_type=str(
-                                                                        route.next_hop_type
-                                                                    ),
-                                                                    next_hop_ip=route.next_hop_ip_address,
-                                                                    route_origin="User",
+                                                                self._convert_to_model(
+                                                                    {
+                                                                        "address_prefix": route.address_prefix,
+                                                                        "next_hop_type": str(
+                                                                            route.next_hop_type
+                                                                        ),
+                                                                        "next_hop_ip": route.next_hop_ip_address,
+                                                                        "route_origin": "User",
+                                                                    },
+                                                                    RouteModel
                                                                 )
                                                             )
                                     except Exception as subnet_error:

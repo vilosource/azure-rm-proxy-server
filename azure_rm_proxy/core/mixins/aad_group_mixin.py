@@ -28,12 +28,8 @@ class AADGroupMixin(BaseAzureResourceMixin):
         aad_groups = []
 
         try:
-            # Get role assignments
-            from ..azure_clients import AzureClientFactory
-
-            authorization_client = AzureClientFactory.create_authorization_client(
-                subscription_id, self.credential
-            )
+            # Get authorization client with the new helper method
+            authorization_client = await self._get_client('authorization', subscription_id)
             role_assignments = []
 
             self._log_debug(f"Fetching role assignments for VM: {vm.id}")
@@ -71,11 +67,12 @@ class AADGroupMixin(BaseAzureResourceMixin):
                                     else "Unknown Role"
                                 )
 
-                                # Create a meaningful display name with the role
+                                # Use our helper method to create the AADGroupModel
                                 display_name = f"{role_name} Group ({group_id})"
                                 aad_groups.append(
-                                    AADGroupModel(
-                                        id=group_id, display_name=display_name
+                                    self._convert_to_model(
+                                        {"id": group_id, "display_name": display_name},
+                                        AADGroupModel
                                     )
                                 )
                                 continue
@@ -89,7 +86,10 @@ class AADGroupMixin(BaseAzureResourceMixin):
                 # If we get here, we couldn't get role info, so add the basic format
                 if not any(g.id == group_id for g in aad_groups):
                     aad_groups.append(
-                        AADGroupModel(id=group_id, display_name=f"Group {group_id}")
+                        self._convert_to_model(
+                            {"id": group_id, "display_name": f"Group {group_id}"}, 
+                            AADGroupModel
+                        )
                     )
 
             # If we have the Microsoft Graph SDK, try to enhance the names further
@@ -119,7 +119,10 @@ class AADGroupMixin(BaseAzureResourceMixin):
                                 full_name = display_name
 
                             updated_groups.append(
-                                AADGroupModel(id=group.id, display_name=full_name)
+                                self._convert_to_model(
+                                    {"id": group.id, "display_name": full_name},
+                                    AADGroupModel
+                                )
                             )
                             self._log_debug(
                                 f"Enhanced group name with Graph API: {full_name}"
