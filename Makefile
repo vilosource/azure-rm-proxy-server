@@ -1,5 +1,5 @@
 # Azure RM Proxy Server Makefile
-.PHONY: help install run run-mock run-with-redis test lint format clean fixtures harnesses docs test-mock-service test-integration test-integration-mock test-report-dir test-redis-cache validate_api_endpoints force-stop-server test-client
+.PHONY: help install run run-mock run-with-redis test lint format clean fixtures harnesses docs test-client test-core
 
 # Default target executed when no arguments are given to make.
 help:
@@ -13,20 +13,15 @@ help:
 	@echo "  make run-mock         Run the proxy server in mock mode"
 	@echo "  make run-with-redis   Run the proxy server with Redis caching"
 	@echo "  make test             Run all tests"
-	@echo "  make test-mock        Run tests using mock service"
-	@echo "  make test-mock-service Run mock service test script"
-	@echo "  make test-integration  Run integration tests with real Azure"
-	@echo "  make test-integration-mock Run integration tests with mock service"
+	@echo "  make test-core        Run only core unit tests for azure_rm_proxy"
+	@echo "  make test-client      Run client tests"
 	@echo "  make lint             Run linters (flake8, mypy)"
 	@echo "  make format           Format code with Black"
 	@echo "  make clean            Remove build artifacts and cache files"
 	@echo "  make fixtures         Generate test fixtures"
 	@echo "  make harnesses        Generate test harnesses"
 	@echo "  make docs             Build documentation"
-	@echo "  make test-redis-cache Test Redis cache functionality"
-	@echo "  make validate_api_endpoints Validate API endpoints"
 	@echo "  make force-stop-server Forcefully stop the server process"
-	@echo "  make test-client      Run client tests"
 	@echo ""
 
 # Install dependencies
@@ -55,31 +50,11 @@ run-with-redis:
 
 # Run all tests
 test:
-	poetry run pytest
+	poetry run pytest azure_rm_client/tests azure_rm_proxy/tests/unit
 
-# Run tests with mock data
-test-mock:
-	USE_MOCK=true poetry run pytest
-
-# Run mock service test
-test-mock-service:
-	poetry run python -m azure_rm_proxy.tests.scripts.test_mock_service
-
-# Run integration tests with real Azure
-test-integration: test-report-dir
-	poetry run python -m azure_rm_proxy.tests.scripts.integration_test
-
-# Run integration tests with mock service
-test-integration-mock: test-report-dir
-	poetry run python -m azure_rm_proxy.tests.scripts.integration_test --mock
-
-# Test Redis cache functionality
-test-redis-cache:
-	./tools/test_redis_cache.py
-
-# Validate API endpoints
-validate_api_endpoints:
-	pytest azure_rm_proxy/tests/verification_tests/test_api_endpoints.py --log-cli-level=INFO
+# Run only core unit tests for azure_rm_proxy
+test-core:
+	poetry run pytest azure_rm_proxy/tests/unit/core
 
 # Run client tests
 test-client:
@@ -118,10 +93,6 @@ harnesses:
 docs:
 	@echo "Building documentation is not yet implemented."
 	@echo "See the existing markdown files in the repository root and docs/ directory."
-
-# Test reports directory
-test-report-dir:
-	mkdir -p ./test_reports
 
 # Forcefully stop the server process
 force-stop-server:

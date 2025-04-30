@@ -36,8 +36,8 @@ jobs:
         run: poetry install --with dev
 
       - name: Run tests
-        run: poetry run pytest --ignore=azure_rm_client/tests --ignore=azure_rm_proxy/tests
-        # Note: Currently ignoring all tests for CI pipeline
+        run: poetry run pytest
+        # Re-enabled all tests for CI pipeline
         
       - name: Push to main (only on feature branches with successful tests)
         if: success() && startsWith(github.ref, 'refs/heads/feature/')
