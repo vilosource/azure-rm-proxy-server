@@ -29,7 +29,9 @@ class AADGroupMixin(BaseAzureResourceMixin):
 
         try:
             # Get authorization client with the new helper method
-            authorization_client = await self._get_client('authorization', subscription_id)
+            authorization_client = await self._get_client(
+                "authorization", subscription_id
+            )
             role_assignments = []
 
             self._log_debug(f"Fetching role assignments for VM: {vm.id}")
@@ -72,7 +74,7 @@ class AADGroupMixin(BaseAzureResourceMixin):
                                 aad_groups.append(
                                     self._convert_to_model(
                                         {"id": group_id, "display_name": display_name},
-                                        AADGroupModel
+                                        AADGroupModel,
                                     )
                                 )
                                 continue
@@ -87,8 +89,8 @@ class AADGroupMixin(BaseAzureResourceMixin):
                 if not any(g.id == group_id for g in aad_groups):
                     aad_groups.append(
                         self._convert_to_model(
-                            {"id": group_id, "display_name": f"Group {group_id}"}, 
-                            AADGroupModel
+                            {"id": group_id, "display_name": f"Group {group_id}"},
+                            AADGroupModel,
                         )
                     )
 
@@ -121,7 +123,7 @@ class AADGroupMixin(BaseAzureResourceMixin):
                             updated_groups.append(
                                 self._convert_to_model(
                                     {"id": group.id, "display_name": full_name},
-                                    AADGroupModel
+                                    AADGroupModel,
                                 )
                             )
                             self._log_debug(

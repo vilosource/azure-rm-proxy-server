@@ -8,6 +8,7 @@ from azure_rm_client.commands import CommandRegistry
 from azure_rm_client.commands.base_command import BaseCommand, CommandGroup
 
 
+@pytest.mark.skipif(True, reason="This is a helper class, not a test class")
 class TestCommand(BaseCommand):
     """
     Test command implementation.
@@ -36,6 +37,7 @@ class TestCommand(BaseCommand):
         return True
 
 
+@pytest.mark.skipif(True, reason="This is a helper class, not a test class")
 class TestGroup(CommandGroup):
     """
     Test command group implementation.
@@ -71,6 +73,7 @@ class TestGroup(CommandGroup):
         return True
 
 
+@pytest.mark.skipif(True, reason="This is a helper class, not a test class")
 class TestSubCommand1(BaseCommand):
     """
     Test subcommand implementation.
@@ -99,6 +102,7 @@ class TestSubCommand1(BaseCommand):
         return True
 
 
+@pytest.mark.skipif(True, reason="This is a helper class, not a test class")
 class TestSubCommand2(BaseCommand):
     """
     Test subcommand implementation.
@@ -127,6 +131,7 @@ class TestSubCommand2(BaseCommand):
         return True
 
 
+@pytest.mark.skipif(True, reason="This is a helper class, not a test class")
 class TestNestedGroup(CommandGroup):
     """
     Test nested command group implementation.
@@ -158,6 +163,7 @@ class TestNestedGroup(CommandGroup):
         return True
 
 
+@pytest.mark.skipif(True, reason="This is a helper class, not a test class")
 class TestNestedSubCommand(BaseCommand):
     """
     Test nested subcommand implementation.

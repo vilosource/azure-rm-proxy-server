@@ -15,7 +15,7 @@ async def get_vm_report(
 ):
     """
     Generate a comprehensive report of all virtual machines across all subscriptions.
-    
+
     The report includes detailed information about each VM:
     - Hostname (if available)
     - Operating System
@@ -29,7 +29,7 @@ async def get_vm_report(
     - Resource Group
     - Location
     - Subscription Information
-    
+
     Parameters:
         refresh_cache: When set to true, bypasses cache and retrieves fresh data from Azure
     """

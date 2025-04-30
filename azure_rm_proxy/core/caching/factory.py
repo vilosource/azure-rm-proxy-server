@@ -32,12 +32,16 @@ class CacheFactory:
         if cache_type == CacheType.REDIS.value:
             redis_url = getattr(settings, "redis_url", "redis://localhost:6379/0")
             redis_prefix = getattr(settings, "redis_prefix", "azure_rm_proxy:")
-            
+
             try:
-                logger.info(f"Creating Redis cache with URL: {redis_url} and prefix: {redis_prefix}")
+                logger.info(
+                    f"Creating Redis cache with URL: {redis_url} and prefix: {redis_prefix}"
+                )
                 return RedisCache(redis_url=redis_url, prefix=redis_prefix)
             except Exception as e:
-                logger.error(f"Failed to create Redis cache: {e}. Falling back to memory cache.")
+                logger.error(
+                    f"Failed to create Redis cache: {e}. Falling back to memory cache."
+                )
                 return MemoryCache()
         elif cache_type == CacheType.NO_CACHE.value:
             logger.info("Creating no-cache implementation (caching disabled)")

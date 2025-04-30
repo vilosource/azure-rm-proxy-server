@@ -15,7 +15,9 @@ logger = logging.getLogger(__name__)
 class SubscriptionMixin(BaseAzureResourceMixin):
     """Mixin for subscription-related operations."""
 
-    @cached_azure_operation(model_class=SubscriptionModel, cache_key_prefix="subscriptions")
+    @cached_azure_operation(
+        model_class=SubscriptionModel, cache_key_prefix="subscriptions"
+    )
     async def get_subscriptions(
         self, refresh_cache: bool = False
     ) -> List[SubscriptionModel]:
@@ -29,16 +31,13 @@ class SubscriptionMixin(BaseAzureResourceMixin):
             List of subscription models
         """
         # Get subscription client with concurrency control
-        subscription_client = await self._get_client('subscription', None)
-        
+        subscription_client = await self._get_client("subscription", None)
+
         subscriptions = []
         for sub in subscription_client.subscriptions.list():
             # Use the helper method to convert Azure object to Pydantic model
             subscription = self._convert_to_model(
-                sub, 
-                SubscriptionModel,
-                id=sub.subscription_id,
-                name=sub.display_name
+                sub, SubscriptionModel, id=sub.subscription_id, name=sub.display_name
             )
             subscriptions.append(subscription)
 

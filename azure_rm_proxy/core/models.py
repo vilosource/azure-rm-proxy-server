@@ -40,6 +40,7 @@ class RouteModel(BaseModel):
 
 class RouteEntryModel(BaseModel):
     """Model for a route entry within a route table"""
+
     name: str
     address_prefix: str
     next_hop_type: str
@@ -48,6 +49,7 @@ class RouteEntryModel(BaseModel):
 
 class RouteTableSummaryModel(BaseModel):
     """Summary model for a route table"""
+
     id: str
     name: str
     location: str
@@ -60,6 +62,7 @@ class RouteTableSummaryModel(BaseModel):
 
 class RouteTableModel(BaseModel):
     """Detailed model for a route table"""
+
     id: str
     name: str
     location: str
@@ -111,6 +114,7 @@ class VirtualMachineHostname(BaseModel):
 
 class VirtualMachineReport(BaseModel):
     """Model for VM report with detailed information"""
+
     hostname: Optional[str] = None
     os: Optional[str] = None
     environment: Optional[str] = None

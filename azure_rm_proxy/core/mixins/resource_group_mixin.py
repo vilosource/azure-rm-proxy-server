@@ -30,8 +30,8 @@ class ResourceGroupMixin(BaseAzureResourceMixin):
             List of resource group models
         """
         # Get resource client with concurrency control
-        resource_client = await self._get_client('resource', subscription_id)
-        
+        resource_client = await self._get_client("resource", subscription_id)
+
         resource_groups = []
         for rg in resource_client.resource_groups.list():
             # Use the helper method to convert Azure object to Pydantic model

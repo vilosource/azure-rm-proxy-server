@@ -67,7 +67,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                             "private_ip_addresses": private_ips,
                             "public_ip_addresses": public_ips,
                         },
-                        NetworkInterfaceModel
+                        NetworkInterfaceModel,
                     )
                 )
             except Exception as e:
@@ -202,7 +202,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                     "port_range": "*",
                     "access": "Allow",
                 },
-                NsgRuleModel
+                NsgRuleModel,
             ),
             self._convert_to_model(
                 {
@@ -212,7 +212,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                     "port_range": "*",
                     "access": "Allow",
                 },
-                NsgRuleModel
+                NsgRuleModel,
             ),
             self._convert_to_model(
                 {
@@ -222,7 +222,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                     "port_range": "*",
                     "access": "Deny",
                 },
-                NsgRuleModel
+                NsgRuleModel,
             ),
             self._convert_to_model(
                 {
@@ -232,7 +232,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                     "port_range": "*",
                     "access": "Allow",
                 },
-                NsgRuleModel
+                NsgRuleModel,
             ),
             self._convert_to_model(
                 {
@@ -242,7 +242,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                     "port_range": "*",
                     "access": "Allow",
                 },
-                NsgRuleModel
+                NsgRuleModel,
             ),
             self._convert_to_model(
                 {
@@ -252,7 +252,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                     "port_range": "*",
                     "access": "Deny",
                 },
-                NsgRuleModel
+                NsgRuleModel,
             ),
         ]
 
@@ -305,7 +305,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                                                 "port_range": port_range,
                                                 "access": str(rule.access),
                                             },
-                                            NsgRuleModel
+                                            NsgRuleModel,
                                         )
                                     )
 
@@ -365,7 +365,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                                                 else "Unknown"
                                             ),
                                         },
-                                        NsgRuleModel
+                                        NsgRuleModel,
                                     )
                                 )
 
@@ -434,7 +434,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                     "next_hop_ip": None,
                     "route_origin": "Default",
                 },
-                RouteModel
+                RouteModel,
             ),
             self._convert_to_model(
                 {
@@ -443,7 +443,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                     "next_hop_ip": None,
                     "route_origin": "Default",
                 },
-                RouteModel
+                RouteModel,
             ),
             self._convert_to_model(
                 {
@@ -452,7 +452,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                     "next_hop_ip": None,
                     "route_origin": "Default",
                 },
-                RouteModel
+                RouteModel,
             ),
             self._convert_to_model(
                 {
@@ -461,7 +461,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                     "next_hop_ip": None,
                     "route_origin": "Default",
                 },
-                RouteModel
+                RouteModel,
             ),
         ]
 
@@ -469,41 +469,51 @@ class NetworkMixin(BaseAzureResourceMixin):
             # Try to use the begin_get_effective_route_table method
             try:
                 self._log_debug("Trying effective route table API")
-                
+
                 # Check if the method exists in this SDK version
-                if hasattr(network_client.network_interfaces, "begin_get_effective_route_table"):
+                if hasattr(
+                    network_client.network_interfaces, "begin_get_effective_route_table"
+                ):
                     poller = network_client.network_interfaces.begin_get_effective_route_table(
                         nic_rg_name, first_nic_name
                     )
-                    
+
                     result = poller.result()
-                    
-                    if result and hasattr(result, 'value'):
+
+                    if result and hasattr(result, "value"):
                         for route in result.value:
                             # Handle address_prefix which might be a list or a string
                             address_prefix = route.address_prefix
                             if isinstance(address_prefix, list):
-                                address_prefix = address_prefix[0] if address_prefix else ""
-                            
+                                address_prefix = (
+                                    address_prefix[0] if address_prefix else ""
+                                )
+
                             # Handle next_hop_ip_address which might be a list or a string
                             next_hop_ip = None
-                            if hasattr(route, 'next_hop_ip_address'):
+                            if hasattr(route, "next_hop_ip_address"):
                                 next_hop_ip = route.next_hop_ip_address
                                 if isinstance(next_hop_ip, list):
-                                    next_hop_ip = next_hop_ip[0] if next_hop_ip else None
-                            
+                                    next_hop_ip = (
+                                        next_hop_ip[0] if next_hop_ip else None
+                                    )
+
                             effective_routes.append(
                                 self._convert_to_model(
                                     {
                                         "address_prefix": address_prefix,
                                         "next_hop_type": route.next_hop_type,
                                         "next_hop_ip": next_hop_ip,
-                                        "route_origin": route.source if hasattr(route, 'source') else "Unknown"
+                                        "route_origin": (
+                                            route.source
+                                            if hasattr(route, "source")
+                                            else "Unknown"
+                                        ),
                                     },
-                                    RouteModel
+                                    RouteModel,
                                 )
                             )
-                        
+
                         # If we got routes, we're done
                         if effective_routes:
                             self._log_debug(
@@ -586,7 +596,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                                                                         "next_hop_ip": route.next_hop_ip_address,
                                                                         "route_origin": "User",
                                                                     },
-                                                                    RouteModel
+                                                                    RouteModel,
                                                                 )
                                                             )
                                     except Exception as subnet_error:

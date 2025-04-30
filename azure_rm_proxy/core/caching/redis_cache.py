@@ -27,17 +27,19 @@ class RedisCache(BaseCache):
             prefix: Key prefix for all Redis keys
         """
         self.prefix = prefix
-        
+
         try:
             self._redis = redis.from_url(redis_url, decode_responses=False)
-            
+
             # Parse the URL to get components for logging
             parsed_url = urllib.parse.urlparse(redis_url)
             host = parsed_url.hostname or "localhost"
             port = parsed_url.port or 6379
-            db = parsed_url.path.lstrip('/') or "0"
-            
-            logger.info(f"Initialized Redis cache at {host}:{port}/{db} with prefix '{prefix}'")
+            db = parsed_url.path.lstrip("/") or "0"
+
+            logger.info(
+                f"Initialized Redis cache at {host}:{port}/{db} with prefix '{prefix}'"
+            )
         except Exception as e:
             logger.error(f"Failed to initialize Redis cache: {e}")
             raise
@@ -45,24 +47,24 @@ class RedisCache(BaseCache):
     def _prefix_key(self, key: str) -> str:
         """
         Add prefix to a key.
-        
+
         Args:
             key: Original cache key
-            
+
         Returns:
             Prefixed key for Redis
         """
         if not self.prefix:
             return key
         return f"{self.prefix}{key}"
-        
+
     def _serialize(self, value: Any) -> bytes:
         """
         Serialize a value to JSON.
-        
+
         Args:
             value: The value to serialize
-            
+
         Returns:
             JSON string representation of the value
         """
@@ -70,51 +72,53 @@ class RedisCache(BaseCache):
             # Process value to handle Pydantic models
             processed_value = self._process_value(value)
             # Serialize to JSON
-            return json.dumps(processed_value).encode('utf-8')
+            return json.dumps(processed_value).encode("utf-8")
         except Exception as e:
             logger.error(f"Serialization error: {e}")
             raise
-            
+
     def _process_value(self, value: Any) -> Any:
         """
         Process any value to make it JSON serializable.
-        
+
         Args:
             value: The value to process
-            
+
         Returns:
             A JSON serializable version of the value
         """
         # Handle None
         if value is None:
             return None
-            
+
         # Handle Pydantic models
-        if hasattr(value, 'model_dump'):
+        if hasattr(value, "model_dump"):
             # Pydantic v2
             return value.model_dump()
-        elif hasattr(value, 'dict') and callable(getattr(value, 'dict')):
+        elif hasattr(value, "dict") and callable(getattr(value, "dict")):
             # Pydantic v1
             return value.dict()
-            
+
         # Handle lists (may contain Pydantic models)
         elif isinstance(value, list):
             return [self._process_value(item) for item in value]
-            
+
         # Handle dictionaries (may contain Pydantic models as values)
         elif isinstance(value, dict):
             return {k: self._process_value(v) for k, v in value.items()}
-            
+
         # Handle basic types that are directly JSON serializable
         elif isinstance(value, (str, int, float, bool)):
             return value
-            
+
         # For other types, try to convert to string
         else:
             try:
                 return str(value)
             except Exception as e:
-                logger.warning(f"Could not serialize object of type {type(value).__name__}, returning string representation: {e}")
+                logger.warning(
+                    f"Could not serialize object of type {type(value).__name__}, returning string representation: {e}"
+                )
                 return f"<Non-serializable object of type {type(value).__name__}>"
 
     def get(self, key: str) -> Optional[Any]:
@@ -135,7 +139,9 @@ class RedisCache(BaseCache):
         try:
             return json.loads(value)
         except Exception as e:
-            logger.error(f"Error deserializing cached value for key {prefixed_key}: {e}")
+            logger.error(
+                f"Error deserializing cached value for key {prefixed_key}: {e}"
+            )
             return None
 
     def set(self, key: str, value: Any) -> None:

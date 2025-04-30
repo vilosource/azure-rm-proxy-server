@@ -377,7 +377,11 @@ class MockAzureResourceService:
         return []
 
     async def get_vm_details(
-        self, subscription_id: str, resource_group_name: str, vm_name: str, refresh_cache: bool = False
+        self,
+        subscription_id: str,
+        resource_group_name: str,
+        vm_name: str,
+        refresh_cache: bool = False,
     ) -> Dict:
         """
         Get details for a specific virtual machine.
@@ -399,16 +403,16 @@ class MockAzureResourceService:
         logger.info(
             f"Fetching mock VM details for {vm_name} in resource group {resource_group_name}"
         )
-        
+
         # First, try to find a specific VM details fixture
         fixture = self._find_latest_fixture(
             f"vm_details_{subscription_id}_{resource_group_name}_{vm_name}"
         )
-        
+
         if fixture:
             self.cache.set(cache_key, fixture)
             return fixture
-            
+
         # If not found, create a basic VM details response
         vm_details = {
             "id": f"/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/Microsoft.Compute/virtualMachines/{vm_name}",
@@ -421,7 +425,7 @@ class MockAzureResourceService:
                 "disk_size_gb": 128,
                 "managed_disk": {
                     "id": f"/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/Microsoft.Compute/disks/{vm_name}-osdisk"
-                }
+                },
             },
             "network_interfaces": [
                 {
@@ -436,9 +440,9 @@ class MockAzureResourceService:
                             "public_ip_address": None,
                             "subnet": {
                                 "id": f"/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/Microsoft.Network/virtualNetworks/vnet-{resource_group_name}/subnets/default"
-                            }
+                            },
                         }
-                    ]
+                    ],
                 }
             ],
             "effective_nsg_rules": [
@@ -451,7 +455,7 @@ class MockAzureResourceService:
                     "source_address_prefix": "VirtualNetwork",
                     "source_port_range": "*",
                     "destination_address_prefix": "VirtualNetwork",
-                    "destination_port_range": "*"
+                    "destination_port_range": "*",
                 },
                 {
                     "name": "AllowAzureLoadBalancerInBound",
@@ -462,7 +466,7 @@ class MockAzureResourceService:
                     "source_address_prefix": "AzureLoadBalancer",
                     "source_port_range": "*",
                     "destination_address_prefix": "*",
-                    "destination_port_range": "*"
+                    "destination_port_range": "*",
                 },
                 {
                     "name": "DenyAllInBound",
@@ -473,8 +477,8 @@ class MockAzureResourceService:
                     "source_address_prefix": "*",
                     "source_port_range": "*",
                     "destination_address_prefix": "*",
-                    "destination_port_range": "*"
-                }
+                    "destination_port_range": "*",
+                },
             ],
             "hostname": f"{vm_name}.internal.cloudapp.net",
             "effective_routes": [
@@ -482,17 +486,17 @@ class MockAzureResourceService:
                     "address_prefix": "10.0.0.0/24",
                     "next_hop_type": "VnetLocal",
                     "next_hop_ip_address": None,
-                    "source": "Default"
+                    "source": "Default",
                 },
                 {
                     "address_prefix": "0.0.0.0/0",
                     "next_hop_type": "Internet",
                     "next_hop_ip_address": None,
-                    "source": "Default"
-                }
-            ]
+                    "source": "Default",
+                },
+            ],
         }
-        
+
         self.cache.set(cache_key, vm_details)
         return vm_details
 
@@ -512,21 +516,21 @@ class MockAzureResourceService:
                 return cached_data
 
         logger.info("Fetching mock VM hostnames")
-        
+
         # Try to find a VM hostnames fixture
         fixture = self._find_latest_fixture("vm_hostnames")
-        
+
         if fixture:
             self.cache.set(cache_key, fixture)
             return fixture
-            
+
         # Get the first subscription to use for the sample data
         subscriptions = await self.get_subscriptions()
         if not subscriptions:
             return []
-            
+
         sub = subscriptions[0]
-        
+
         # Return simple mock hostname data instead of iterating through all RGs and VMs
         hostnames = [
             {
@@ -534,31 +538,31 @@ class MockAzureResourceService:
                 "hostname": "vm-abad-awms-demo-fi-1.internal.cloudapp.net",
                 "subscription_id": sub.id,
                 "subscription_name": sub.name,
-                "resource_group_name": "rg-abad-services-prod-swedencentral-01"
+                "resource_group_name": "rg-abad-services-prod-swedencentral-01",
             },
             {
                 "vm_name": "vm-abad-lms-1",
                 "hostname": "vm-abad-lms-1.internal.cloudapp.net",
                 "subscription_id": sub.id,
                 "subscription_name": sub.name,
-                "resource_group_name": "rg-abad-services-prod-swedencentral-01"
+                "resource_group_name": "rg-abad-services-prod-swedencentral-01",
             },
             {
                 "vm_name": "vm-abad-proxy-1",
                 "hostname": "vm-abad-proxy-1.internal.cloudapp.net",
                 "subscription_id": sub.id,
                 "subscription_name": sub.name,
-                "resource_group_name": "rg-abad-services-prod-swedencentral-01"
+                "resource_group_name": "rg-abad-services-prod-swedencentral-01",
             },
             {
                 "vm_name": "vm-abad-tms-demo-fi-1",
                 "hostname": "vm-abad-tms-demo-fi-1.internal.cloudapp.net",
                 "subscription_id": sub.id,
                 "subscription_name": sub.name,
-                "resource_group_name": "rg-abad-services-prod-swedencentral-01"
-            }
+                "resource_group_name": "rg-abad-services-prod-swedencentral-01",
+            },
         ]
-        
+
         self.cache.set(cache_key, hostnames)
         return hostnames
 
@@ -598,10 +602,10 @@ class MockAzureResourceService:
                 "location": "westus",
                 "resource_group": "rg-sample-01",
                 "route_count": 2,
-                "subnet_count": 1
+                "subnet_count": 1,
             }
         ]
-        
+
         self.cache.set(cache_key, route_tables)
         return route_tables
 
@@ -651,24 +655,24 @@ class MockAzureResourceService:
                     "name": "default-to-internet",
                     "address_prefix": "0.0.0.0/0",
                     "next_hop_type": "Internet",
-                    "next_hop_ip_address": None
+                    "next_hop_ip_address": None,
                 },
                 {
                     "name": "to-on-prem",
                     "address_prefix": "10.0.0.0/16",
                     "next_hop_type": "VirtualNetworkGateway",
-                    "next_hop_ip_address": None
-                }
+                    "next_hop_ip_address": None,
+                },
             ],
             "subnets": [
                 {
                     "id": f"/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/Microsoft.Network/virtualNetworks/vnet-{resource_group_name}/subnets/default",
                     "name": "default",
-                    "address_prefixes": ["10.1.0.0/24"]
+                    "address_prefixes": ["10.1.0.0/24"],
                 }
-            ]
+            ],
         }
-        
+
         self.cache.set(cache_key, route_table_details)
         return route_table_details
 
@@ -692,48 +696,50 @@ class MockAzureResourceService:
         vm_details = await self.get_vm_details(
             subscription_id, resource_group_name, vm_name, refresh_cache
         )
-        
+
         if vm_details and "effective_routes" in vm_details:
             return vm_details["effective_routes"]
-            
+
         # Fallback to a dedicated fixture if VM details are not available or don't contain routes
-        cache_key = f"vm_effective_routes:{subscription_id}:{resource_group_name}:{vm_name}"
-        
+        cache_key = (
+            f"vm_effective_routes:{subscription_id}:{resource_group_name}:{vm_name}"
+        )
+
         if not refresh_cache:
             cached_data = self.cache.get(cache_key)
             if cached_data:
                 logger.debug(f"Cache hit for VM effective routes of {vm_name}")
                 return cached_data
-                
+
         logger.info(
             f"Fetching mock VM effective routes for {vm_name} in resource group {resource_group_name}"
         )
-        
+
         # Try to get routes from a specific fixture
         fixture = self._find_latest_fixture(
             f"vm_routes_{subscription_id}_{resource_group_name}_{vm_name}"
         )
-        
+
         if fixture:
             self.cache.set(cache_key, fixture)
             return fixture
-            
+
         # If no specific fixture is found, return some sample routes instead of empty list
         sample_routes = [
             {
                 "address_prefix": "10.0.0.0/24",
                 "next_hop_type": "VnetLocal",
                 "next_hop_ip_address": None,
-                "source": "Default"
+                "source": "Default",
             },
             {
                 "address_prefix": "0.0.0.0/0",
                 "next_hop_type": "Internet",
                 "next_hop_ip_address": None,
-                "source": "Default"
-            }
+                "source": "Default",
+            },
         ]
-        
+
         self.cache.set(cache_key, sample_routes)
         return sample_routes
 
@@ -753,85 +759,85 @@ class MockAzureResourceService:
             nic_name: Network interface name
             refresh_cache: Whether to bypass cache and fetch fresh data
         """
-        cache_key = f"nic_effective_routes:{subscription_id}:{resource_group_name}:{nic_name}"
-        
+        cache_key = (
+            f"nic_effective_routes:{subscription_id}:{resource_group_name}:{nic_name}"
+        )
+
         if not refresh_cache:
             cached_data = self.cache.get(cache_key)
             if cached_data:
                 logger.debug(f"Cache hit for NIC effective routes of {nic_name}")
                 return cached_data
-                
+
         logger.info(
             f"Fetching mock NIC effective routes for {nic_name} in resource group {resource_group_name}"
         )
-        
+
         # Try to get routes from a specific fixture
         fixture = self._find_latest_fixture(
             f"nic_routes_{subscription_id}_{resource_group_name}_{nic_name}"
         )
-        
+
         if fixture:
             self.cache.set(cache_key, fixture)
             return fixture
-            
+
         # If no specific fixture is found, return some sample routes
         sample_routes = [
             {
                 "address_prefix": "10.0.0.0/24",
                 "next_hop_type": "VnetLocal",
                 "next_hop_ip_address": None,
-                "source": "Default"
+                "source": "Default",
             },
             {
                 "address_prefix": "0.0.0.0/0",
                 "next_hop_type": "Internet",
                 "next_hop_ip_address": None,
-                "source": "Default"
-            }
+                "source": "Default",
+            },
         ]
-        
+
         self.cache.set(cache_key, sample_routes)
         return sample_routes
 
-    async def get_all_virtual_machines(
-        self, refresh_cache: bool = False
-    ) -> List[Dict]:
+    async def get_all_virtual_machines(self, refresh_cache: bool = False) -> List[Dict]:
         """
         Get all virtual machines across all subscriptions and resource groups.
-        
+
         Args:
             refresh_cache: Whether to bypass cache and fetch fresh data
-            
+
         Returns:
             List of virtual machines with subscription and resource group context
         """
         cache_key = "all_vms"
-        
+
         if not refresh_cache:
             cached_data = self.cache.get(cache_key)
             if cached_data:
                 logger.debug("Cache hit for all VMs")
                 return cached_data
-                
+
         logger.info("Fetching mock all VMs")
-        
+
         # Try to find a specific fixture for all VMs
         fixture = self._find_latest_fixture("all_vms")
-        
+
         if fixture:
             self.cache.set(cache_key, fixture)
             return fixture
-            
+
         # If no fixture found, create sample VMs with context
         all_vms = []
-        
+
         # Get the first subscription to use for the sample data
         subscriptions = await self.get_subscriptions()
         if not subscriptions:
             return []
-            
+
         sub = subscriptions[0]
-        
+
         # Create sample VMs for this subscription
         sample_vms = [
             {
@@ -844,7 +850,7 @@ class MockAzureResourceService:
                 "subscription_id": sub.id,
                 "subscription_name": sub.name,
                 "resource_group_name": "rg-sample-01",
-                "detail_url": "/api/subscriptions/virtual_machines/vm-sample-01"
+                "detail_url": "/api/subscriptions/virtual_machines/vm-sample-01",
             },
             {
                 "id": f"/subscriptions/{sub.id}/resourceGroups/rg-sample-01/providers/Microsoft.Compute/virtualMachines/vm-sample-02",
@@ -856,10 +862,10 @@ class MockAzureResourceService:
                 "subscription_id": sub.id,
                 "subscription_name": sub.name,
                 "resource_group_name": "rg-sample-01",
-                "detail_url": "/api/subscriptions/virtual_machines/vm-sample-02"
-            }
+                "detail_url": "/api/subscriptions/virtual_machines/vm-sample-02",
+            },
         ]
-        
+
         all_vms.extend(sample_vms)
         self.cache.set(cache_key, all_vms)
         return all_vms

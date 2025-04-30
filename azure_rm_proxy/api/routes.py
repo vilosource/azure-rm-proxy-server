@@ -27,7 +27,7 @@ async def list_route_tables(
 ):
     """
     Get all route tables for a subscription.
-    
+
     Parameters:
         subscription_id: The ID of the Azure subscription
         refresh_cache: Whether to bypass cache and fetch fresh data
@@ -59,7 +59,7 @@ async def get_route_table_details(
 ):
     """
     Get detailed information about a specific route table.
-    
+
     Parameters:
         subscription_id: The ID of the Azure subscription
         resource_group_name: The name of the resource group
@@ -68,7 +68,10 @@ async def get_route_table_details(
     """
     try:
         return await azure_service.get_route_table_details(
-            subscription_id, resource_group_name, route_table_name, refresh_cache=refresh_cache
+            subscription_id,
+            resource_group_name,
+            route_table_name,
+            refresh_cache=refresh_cache,
         )
     except ResourceNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
@@ -93,7 +96,7 @@ async def get_vm_effective_routes(
 ):
     """
     Get all effective routes for a specific virtual machine across all its network interfaces.
-    
+
     Parameters:
         subscription_id: The ID of the Azure subscription
         resource_group_name: The name of the resource group
@@ -127,7 +130,7 @@ async def get_nic_effective_routes(
 ):
     """
     Get all effective routes for a specific network interface.
-    
+
     Parameters:
         subscription_id: The ID of the Azure subscription
         resource_group_name: The name of the resource group
@@ -141,13 +144,15 @@ async def get_nic_effective_routes(
     except ResourceNotFoundError:
         raise HTTPException(
             status_code=404,
-            detail=f"Network interface {nic_name} not found in resource group {resource_group_name}."
+            detail=f"Network interface {nic_name} not found in resource group {resource_group_name}.",
         )
     except ClientAuthenticationError:
         raise HTTPException(status_code=401, detail="Authentication failed.")
     except Exception as e:
-        logger.error(f"Error getting effective routes for network interface {nic_name}: {e}")
+        logger.error(
+            f"Error getting effective routes for network interface {nic_name}: {e}"
+        )
         raise HTTPException(
             status_code=500,
-            detail=f"An error occurred getting effective routes for network interface {nic_name}."
+            detail=f"An error occurred getting effective routes for network interface {nic_name}.",
         )
