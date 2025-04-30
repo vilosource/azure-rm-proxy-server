@@ -24,3 +24,6 @@ class Worker(ABC):
             Result of the worker's task
         """
         pass
+
+# Alias Worker as WorkerBase for backward compatibility
+WorkerBase = Worker

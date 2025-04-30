@@ -2,7 +2,7 @@ import logging
 import argparse
 from azure_rm_client.commands.base_command import BaseCommand
 from azure_rm_client.commands import CommandRegistry
-from azure_rm_client.worker import get_worker
+from azure_rm_client.workers import get_worker
 from azure_rm_client.client import RestClient, RequestsHttpClient, JsonResponseHandler
 from azure_rm_client.formatters import get_formatter, get_available_formats
 

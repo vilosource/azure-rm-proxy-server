@@ -4,6 +4,7 @@ from .text_formatter import TextFormatter
 from .markdown_formatter import MarkdownFormatter
 from .rich_formatter import RichFormatter
 from .mediawiki_formatter import MediaWikiFormatter
+from .table_formatter import TableFormatter
 
 # Create the formatter factory and register formatters
 formatter_factory = FormatterFactory()
@@ -12,6 +13,7 @@ formatter_factory.register_formatter("text", TextFormatter)
 formatter_factory.register_formatter("markdown", MarkdownFormatter)
 formatter_factory.register_formatter("rich", RichFormatter)
 formatter_factory.register_formatter("mediawiki", MediaWikiFormatter)
+formatter_factory.register_formatter("table", TableFormatter)  # Register the new TableFormatter
 
 # Default formatter
 DEFAULT_FORMATTER = "rich"
