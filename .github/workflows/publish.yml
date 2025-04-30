@@ -20,6 +20,8 @@ jobs:
   build-publish:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write  # Add explicit write permission to repository contents
 
     steps:
       - name: Checkout code
