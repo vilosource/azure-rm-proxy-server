@@ -128,11 +128,17 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
             )
         )
 
+        # Fetch hostnames for the subscription
+        hostnames = await self.get_vm_hostnames(subscription_id, refresh_cache=refresh_cache)
+        hostname_map = {vm.vm_name: vm.hostname for vm in hostnames}
+
+        # Add hostname to the VM detail
         vm_detail = VirtualMachineDetail(
             network_interfaces=network_interfaces,
             effective_nsg_rules=effective_nsg_rules,
             effective_routes=effective_routes,
             aad_groups=aad_groups,
+            hostname=hostname_map.get(vm_name),  # Add hostname here
             **vm_model.model_dump(),
         )
 

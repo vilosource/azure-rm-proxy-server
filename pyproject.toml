@@ -4,7 +4,10 @@ version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
-packages = [{include = "azure_rm_proxy"}]
+packages = [
+    {include = "azure_rm_proxy"},
+    {include = "azure_rm_client"}
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -22,6 +25,7 @@ black = "^25.1.0"
 redis = "^5.0.1"
 anyio = "^4.9.0"
 gunicorn = "^23.0.0"
+requests = "^2.31.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "7.4.4"
@@ -31,6 +35,8 @@ pytest-asyncio = "0.21.1"
 start-proxy = "azure_rm_proxy.app.main:start"
 generate-test-harnesses = "azure_rm_proxy.tools.generate_test_harnesses:main"
 azure-rm-proxy-client = "azure_rm_proxy.client.cli:app"
+dump-infra-data = "azure_rm_proxy.client.dump_infra_data:fetch_and_save_infra_data"
+azure-rm-client = "azure_rm_client.cmd:main"
 
 [build-system]
 requires = ["poetry-core"]

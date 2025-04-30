@@ -1,3 +1,8 @@
+DevelopmentDiary.md
+design_principles/
+infra_data/
+
+
 conftest.py
 test_fixtures/
 test_reports/

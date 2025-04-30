@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      CACHE_TYPE: redis
+      REDIS_URL: redis://redis:6379/0
+      REDIS_PREFIX: azure_rm_proxy:
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7.0
+    ports:
+      - "6379:6379"
