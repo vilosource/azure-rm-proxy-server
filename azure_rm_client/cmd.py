@@ -221,6 +221,9 @@ def main(args: Optional[List[str]] = None) -> int:
     if args is None:
         args = sys.argv[1:]
     
+    if not args:  # If no arguments are provided, show help
+        args = ['--help']
+    
     parsed_args = parse_args(args)
     
     # Set up logging level

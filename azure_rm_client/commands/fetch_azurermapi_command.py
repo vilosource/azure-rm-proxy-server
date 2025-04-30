@@ -64,8 +64,8 @@ class FetchAzureRMApiCommand(BaseCommand):
         """
         subparser.add_argument(
             "--output", 
-            default="azurermapi.json", 
-            help="Output file path"
+            default="./openapi.json", 
+            help="Output file path (default: ./openapi.json)"
         )
         subparser.add_argument(
             "--format", 
@@ -102,8 +102,8 @@ class FetchAzureRMApiCommand(BaseCommand):
             response_handler = JsonResponseHandler()
             rest_client = RestClient(self.base_url, http_client, response_handler)
             
-            # Create worker
-            worker = get_worker("azurermapi", rest_client=rest_client)
+            # Create worker with the correct endpoint
+            worker = get_worker("openapi", rest_client=rest_client)
             
             # Fetch data
             data = worker.execute()

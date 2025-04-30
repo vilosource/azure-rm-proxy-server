@@ -37,6 +37,7 @@ generate-test-harnesses = "azure_rm_proxy.tools.generate_test_harnesses:main"
 azure-rm-proxy-client = "azure_rm_proxy.client.cli:app"
 dump-infra-data = "azure_rm_proxy.client.dump_infra_data:fetch_and_save_infra_data"
 azure-rm-client = "azure_rm_client.cmd:main"
+azrmc = "azure_rm_client.cmd:main"
 
 [build-system]
 requires = ["poetry-core"]
