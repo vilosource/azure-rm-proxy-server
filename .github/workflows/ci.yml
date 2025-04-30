@@ -13,10 +13,14 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # This permission is needed for pushing to the repository
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for all branches and tags
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -33,3 +37,12 @@ jobs:
 
       - name: Run tests
         run: poetry run pytest
+        
+      - name: Push to main (only on feature branches with successful tests)
+        if: success() && startsWith(github.ref, 'refs/heads/feature/')
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'github-actions@github.com'
+          git checkout main
+          git merge ${{ github.ref_name }} --no-ff -m "Merge ${{ github.ref_name }} into main (via GitHub Actions)"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
