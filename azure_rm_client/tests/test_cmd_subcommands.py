@@ -335,11 +335,19 @@ def test_execute_command_or_subcommand_with_nested_subcommand(mock_registry, set
     """
     # Set up mocks for the nested subcommand scenario
     mock_registry.get_command.return_value = MockGroup
+    
+    # Define a helper function instead of complex lambda with nested conditionals
+    def get_mock_subcommands(command_path):
+        if command_path == 'mock-group':
+            return {"nested": MockNestedGroup}
+        elif command_path == 'mock-group.nested':
+            return {"nested-subcmd": MockNestedSubCommand}
+        else:
+            return {}
+    
+    # Set up the side effects using the helper function
     mock_registry.has_subcommands.side_effect = lambda x: x in ['mock-group', 'mock-group.nested']
-    mock_registry.get_subcommands.side_effect = lambda x: (
-        {"nested": MockNestedGroup} if x == 'mock-group' else 
-        {"nested-subcmd": MockNestedSubCommand} if x == 'mock-group.nested' else {}
-    )
+    mock_registry.get_subcommands.side_effect = get_mock_subcommands
     
     # Execute a command with nested subcommands
     with patch.object(MockNestedSubCommand, '__init__', return_value=None) as mock_init:
