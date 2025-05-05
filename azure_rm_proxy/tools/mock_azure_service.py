@@ -29,6 +29,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Common network address literals used in mock data
+ADDR_LOCAL_SUBNET = "10.0.0.0/24"
+ADDR_DEFAULT_ROUTE = "0.0.0.0/0"
+ADDR_ON_PREM_NETWORK = "10.0.0.0/16"
+
 
 class MockAzureResourceService:
     """
@@ -483,13 +488,13 @@ class MockAzureResourceService:
             "hostname": f"{vm_name}.internal.cloudapp.net",
             "effective_routes": [
                 {
-                    "address_prefix": "10.0.0.0/24",
+                    "address_prefix": ADDR_LOCAL_SUBNET,
                     "next_hop_type": "VnetLocal",
                     "next_hop_ip_address": None,
                     "source": "Default",
                 },
                 {
-                    "address_prefix": "0.0.0.0/0",
+                    "address_prefix": ADDR_DEFAULT_ROUTE,
                     "next_hop_type": "Internet",
                     "next_hop_ip_address": None,
                     "source": "Default",
@@ -653,13 +658,13 @@ class MockAzureResourceService:
             "routes": [
                 {
                     "name": "default-to-internet",
-                    "address_prefix": "0.0.0.0/0",
+                    "address_prefix": ADDR_DEFAULT_ROUTE,
                     "next_hop_type": "Internet",
                     "next_hop_ip_address": None,
                 },
                 {
                     "name": "to-on-prem",
-                    "address_prefix": "10.0.0.0/16",
+                    "address_prefix": ADDR_ON_PREM_NETWORK,
                     "next_hop_type": "VirtualNetworkGateway",
                     "next_hop_ip_address": None,
                 },
@@ -668,7 +673,7 @@ class MockAzureResourceService:
                 {
                     "id": f"/subscriptions/{subscription_id}/resourceGroups/{resource_group_name}/providers/Microsoft.Network/virtualNetworks/vnet-{resource_group_name}/subnets/default",
                     "name": "default",
-                    "address_prefixes": ["10.1.0.0/24"],
+                    "address_prefixes": [ADDR_LOCAL_SUBNET],
                 }
             ],
         }
@@ -727,13 +732,13 @@ class MockAzureResourceService:
         # If no specific fixture is found, return some sample routes instead of empty list
         sample_routes = [
             {
-                "address_prefix": "10.0.0.0/24",
+                "address_prefix": ADDR_LOCAL_SUBNET,
                 "next_hop_type": "VnetLocal",
                 "next_hop_ip_address": None,
                 "source": "Default",
             },
             {
-                "address_prefix": "0.0.0.0/0",
+                "address_prefix": ADDR_DEFAULT_ROUTE,
                 "next_hop_type": "Internet",
                 "next_hop_ip_address": None,
                 "source": "Default",
@@ -785,13 +790,13 @@ class MockAzureResourceService:
         # If no specific fixture is found, return some sample routes
         sample_routes = [
             {
-                "address_prefix": "10.0.0.0/24",
+                "address_prefix": ADDR_LOCAL_SUBNET,
                 "next_hop_type": "VnetLocal",
                 "next_hop_ip_address": None,
                 "source": "Default",
             },
             {
-                "address_prefix": "0.0.0.0/0",
+                "address_prefix": ADDR_DEFAULT_ROUTE,
                 "next_hop_type": "Internet",
                 "next_hop_ip_address": None,
                 "source": "Default",

@@ -307,7 +307,6 @@ def test_execute_command_or_subcommand_with_subcommand(mock_registry, setup_mock
     Test executing a command with a subcommand.
     """
     # Set up mocks
-    mock_subcommand = MockSubCommand1(base_url="http://test", option="test-option")
     mock_registry.get_command.return_value = MockGroup
     mock_registry.has_subcommands.return_value = True
     mock_registry.get_subcommands.return_value = {"subcmd1": MockSubCommand1}
@@ -410,7 +409,13 @@ def test_parse_args(setup_mock_commands, args, expected_command, expected_subcom
     
     # Check subcommands
     if expected_command == "mock-group" and len(expected_subcommands) > 0:
+        # First level subcommand
         assert getattr(parsed_args, "mock_group_subcommand") == expected_subcommands[0]
         
-        if len(expected_subcommands) > 1 and expected_subcommands[0] == "nested":
+        # Check for nested subcommand
+        has_second_level = len(expected_subcommands) > 1
+        is_nested_path = expected_subcommands[0] == "nested"
+        
+        # If we expect a second-level subcommand and this is the nested path
+        if has_second_level and is_nested_path:
             assert getattr(parsed_args, "mock_group_nested_subcommand") == expected_subcommands[1]

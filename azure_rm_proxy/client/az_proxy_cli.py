@@ -23,6 +23,11 @@ console = Console()
 # Default settings
 DEFAULT_BASE_URL = "http://localhost:8000"
 
+# Common help text constants
+HELP_SUBSCRIPTION_ID = "Subscription ID"
+HELP_RESOURCE_GROUP = "Resource group name"
+HELP_VM_NAME = "Virtual machine name"
+
 
 async def fetch_data(url: str, params: Optional[Dict[str, Any]] = None) -> Any:
     """Fetch data from the API."""
@@ -269,15 +274,15 @@ def main():
     rg_parser = subparsers.add_parser(
         "list-resource-groups", help="List resource groups in a subscription"
     )
-    rg_parser.add_argument("--subscription-id", required=True, help="Subscription ID")
+    rg_parser.add_argument("--subscription-id", required=True, help=HELP_SUBSCRIPTION_ID)
 
     # List VMs
     vm_parser = subparsers.add_parser(
         "list-vms", help="List virtual machines in a resource group"
     )
-    vm_parser.add_argument("--subscription-id", required=True, help="Subscription ID")
+    vm_parser.add_argument("--subscription-id", required=True, help=HELP_SUBSCRIPTION_ID)
     vm_parser.add_argument(
-        "--resource-group", required=True, help="Resource group name"
+        "--resource-group", required=True, help=HELP_RESOURCE_GROUP
     )
 
     # Get VM details
@@ -286,13 +291,13 @@ def main():
         help="Get detailed information about a specific virtual machine",
     )
     vm_details_parser.add_argument(
-        "--subscription-id", required=True, help="Subscription ID"
+        "--subscription-id", required=True, help=HELP_SUBSCRIPTION_ID
     )
     vm_details_parser.add_argument(
-        "--resource-group", required=True, help="Resource group name"
+        "--resource-group", required=True, help=HELP_RESOURCE_GROUP
     )
     vm_details_parser.add_argument(
-        "--vm-name", required=True, help="Virtual machine name"
+        "--vm-name", required=True, help=HELP_VM_NAME
     )
 
     args = parser.parse_args()

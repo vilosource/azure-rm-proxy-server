@@ -144,18 +144,22 @@ class RedisCache(BaseCache):
             )
             return None
 
-    def set(self, key: str, value: Any) -> None:
+    def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
         """
-        Set a value in the cache without expiration.
+        Set a value in the cache with optional expiration.
 
         Args:
             key: The cache key
             value: The value to cache
+            ttl: Optional time to live in seconds
         """
         prefixed_key = self._prefix_key(key)
         try:
             serialized = self._serialize(value)
-            self._redis.set(prefixed_key, serialized)
+            if ttl is not None:
+                self._redis.setex(prefixed_key, ttl, serialized)
+            else:
+                self._redis.set(prefixed_key, serialized)
         except Exception as e:
             logger.error(f"Error serializing value for key {prefixed_key}: {e}")
 
