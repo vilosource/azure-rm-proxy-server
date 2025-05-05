@@ -26,6 +26,7 @@ redis = "^5.0.1"
 anyio = "^4.9.0"
 gunicorn = "^23.0.0"
 requests = "^2.31.0"
+pyyaml = "^6.0.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "7.4.4"

@@ -1,8 +1,12 @@
 import argparse
+import logging
 from typing import Dict, Any
 from azure_rm_client.commands.base_command import BaseCommand
 from azure_rm_client.commands import CommandRegistry
 from azure_rm_client.formatters import get_formatter
+from azure_rm_client.workers.subscriptions_worker import SubscriptionsWorker
+
+logger = logging.getLogger(__name__)
 
 @CommandRegistry.register
 class SubscriptionsCommand(BaseCommand):
@@ -10,8 +14,9 @@ class SubscriptionsCommand(BaseCommand):
     Command for listing Azure subscriptions.
     """
 
-    def __init__(self, output_format: str = "table"):
+    def __init__(self, output_format: str = "table", args: argparse.Namespace = None):
         self.output_format = output_format
+        self.args = args  # Store the parsed arguments
 
     @property
     def name(self) -> str:
@@ -29,6 +34,11 @@ class SubscriptionsCommand(BaseCommand):
             choices=["table", "json", "yaml"],
             help="Output format (default: table)"
         )
+        subparser.add_argument(
+            "--refresh-cache",
+            action="store_true",
+            help="Bypass cache and fetch fresh data (default: False)"
+        )
 
     @classmethod
     def get_param_mapping(cls) -> Dict[str, str]:
@@ -37,12 +47,22 @@ class SubscriptionsCommand(BaseCommand):
         }
 
     def execute(self) -> bool:
-        # Mocked subscription data for demonstration purposes
-        subscriptions = [
-            {"id": "sub1", "name": "Subscription One", "state": "Enabled"},
-            {"id": "sub2", "name": "Subscription Two", "state": "Disabled"},
-        ]
+        logger.debug("Executing SubscriptionsCommand with output_format=%s", self.output_format)
 
+        # Use the SubscriptionsWorker to fetch subscriptions
+        worker = SubscriptionsWorker()
+        refresh_cache = self.args.refresh_cache if self.args else False  # Safely access refresh_cache
+        try:
+            subscriptions = worker.execute(refresh_cache=refresh_cache)
+            logger.debug("Fetched %d subscriptions", len(subscriptions))
+        except Exception as e:
+            logger.error("Failed to fetch subscriptions: %s", e)
+            return False
+
+        # Format and print the subscriptions
         formatter = get_formatter(self.output_format)
+        logger.debug("Using formatter: %s", self.output_format)
+
         print(formatter.format(subscriptions))
+        logger.debug("SubscriptionsCommand executed successfully")
         return True

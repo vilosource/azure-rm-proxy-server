@@ -176,6 +176,8 @@ def execute_command_or_subcommand(
     if not subcommands:
         command_class = CommandRegistry.get_command(main_command)
         command = command_class.create_from_args(args_dict)
+        # Assign parsed arguments to the command instance
+        command.args = args_dict
         return command.execute()
     
     # Build the full command path
@@ -205,6 +207,8 @@ def execute_command_or_subcommand(
             
             # Create and execute the subcommand
             command = subcommand_class(**command_params)
+            # Assign parsed arguments to the command instance
+            command.args = args_dict
             return command.execute()
         
         # Not the last subcommand - update path and continue
@@ -228,11 +232,14 @@ def main(args: Optional[List[str]] = None) -> int:
     
     # Set up logging level
     if parsed_args.debug:
+        print("Debug mode enabled")
         logging.getLogger().setLevel(logging.DEBUG)
+        logger.debug("Debug logging is enabled")
     
     # Execute the command if specified
     if parsed_args.command:
         # Convert parsed_args to a dict for the command constructor
+
         cmd_args = vars(parsed_args)
         
         # Remove debug flag

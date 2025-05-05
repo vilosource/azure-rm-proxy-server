@@ -95,4 +95,54 @@ This specification outlines the structure and components required for a Python R
 4. `worker.py` sends data to `formatter.py`, which selects the formatting strategy.
 5. Data is formatted and output displayed to the user.
 
+## Commands
+
+The `azrmc` CLI provides the following commands to interact with Azure resources. All commands support the `--refresh-cache` flag (default: `False`) to bypass the cache and fetch fresh data.
+
+### Implemented Commands
+1. **`azrmc subscriptions`**
+   - **Description**: List all Azure subscriptions.
+   - **Parameters**:
+     - `--refresh-cache`: Bypass cache and fetch fresh data (default: `False`).
+
+### Suggested Future Commands
+1. **`azrmc resource-groups`**
+   - **Description**: List all resource groups for a specific subscription.
+   - **Parameters**:
+     - `--subscription-id`: The ID of the subscription.
+     - `--refresh-cache`: Bypass cache and fetch fresh data (default: `False`).
+
+2. **`azrmc virtual-machines`**
+   - **Description**: List all virtual machines in a subscription or resource group.
+   - **Parameters**:
+     - `--subscription-id`: The ID of the subscription.
+     - `--resource-group`: The name of the resource group (optional).
+     - `--refresh-cache`: Bypass cache and fetch fresh data (default: `False`).
+
+3. **`azrmc vm-details`**
+   - **Description**: Get detailed information about a specific virtual machine.
+   - **Parameters**:
+     - `--subscription-id`: The ID of the subscription.
+     - `--resource-group`: The name of the resource group.
+     - `--vm-name`: The name of the virtual machine.
+     - `--refresh-cache`: Bypass cache and fetch fresh data (default: `False`).
+
+4. **`azrmc route-tables`**
+   - **Description**: List all route tables for a subscription or resource group.
+   - **Parameters**:
+     - `--subscription-id`: The ID of the subscription.
+     - `--resource-group`: The name of the resource group (optional).
+     - `--refresh-cache`: Bypass cache and fetch fresh data (default: `False`).
+
+5. **`azrmc vm-hostnames`**
+   - **Description**: List VM names and their hostnames from tags.
+   - **Parameters**:
+     - `--subscription-id`: The ID of the subscription (optional).
+     - `--refresh-cache`: Bypass cache and fetch fresh data (default: `False`).
+
+6. **`azrmc vm-report`**
+   - **Description**: Generate a comprehensive report of all virtual machines across subscriptions.
+   - **Parameters**:
+     - `--refresh-cache`: Bypass cache and fetch fresh data (default: `False`).
+
 

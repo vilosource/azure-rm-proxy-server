@@ -13,6 +13,7 @@ from ..models import (
     VirtualMachineWithContext,
     VirtualMachineHostname,
     SubscriptionModel,
+    VirtualMachineReport,  # Add the import here
 )
 from .base_mixin import BaseAzureResourceMixin, cached_azure_operation
 from ...app.config import settings
@@ -355,7 +356,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
 
         raise ResourceNotFoundError(f"Subscription {subscription_id} not found")
 
-    @cached_azure_operation(model_class="VirtualMachineReport")
+    @cached_azure_operation(model_class=VirtualMachineReport)
     async def get_vm_report(
         self,
         refresh_cache: bool = False,

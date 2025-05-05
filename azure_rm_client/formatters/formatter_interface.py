@@ -4,20 +4,33 @@ from typing import Dict, Any, List
 
 class FormatterInterface(ABC):
     """
-    Abstract interface for formatters following the Strategy Pattern.
-    All concrete formatters must implement this interface.
+    Abstract base class for all formatters.
+    Enforces implementation of required methods.
     """
-    
+
     @abstractmethod
-    def format_data(self, data: Dict[str, Any]) -> str:
+    def format(self, data: Any) -> str:
         """
-        Format the provided data into a string representation.
-        
+        Format the provided data.
+
         Args:
             data: The data to format
-            
+
         Returns:
-            Formatted string representation of the data
+            String representation of the formatted data
+        """
+        pass
+
+    @abstractmethod
+    def format_data(self, data: Any) -> str:
+        """
+        Format the provided data (detailed implementation).
+
+        Args:
+            data: The data to format
+
+        Returns:
+            String representation of the formatted data
         """
         pass
 
