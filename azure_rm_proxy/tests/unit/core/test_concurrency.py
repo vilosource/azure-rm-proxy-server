@@ -34,6 +34,8 @@ class TestConcurrencyLimiter:
 
         # Act
         async with limiter:
+            # Intentionally empty - this test only verifies that 
+            # the context manager correctly acquires and releases the semaphore
             pass
 
         # Assert

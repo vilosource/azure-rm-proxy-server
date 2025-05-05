@@ -881,7 +881,21 @@ def get_mock_azure_service() -> MockAzureResourceService:
     Dependency function for FastAPI to get a MockAzureResourceService instance.
 
     This can be used as a drop-in replacement for the real Azure service in tests
-    and development environments.
+    and development environments. Usage example with FastAPI:
+    
+    ```python
+    from fastapi import Depends, APIRouter
+    from ..tools.mock_azure_service import get_mock_azure_service
+    from ..core.azure_service import AzureResourceService
+    
+    router = APIRouter()
+    
+    @router.get("/subscriptions")
+    async def list_subscriptions(
+        azure_service: AzureResourceService = Depends(get_mock_azure_service)
+    ):
+        return await azure_service.get_subscriptions()
+    ```
 
     Returns:
         A configured MockAzureResourceService instance
@@ -889,23 +903,6 @@ def get_mock_azure_service() -> MockAzureResourceService:
     return MockAzureResourceService(
         cache=InMemoryCache(), fixtures_dir="./test_harnesses"
     )
-
-
-# Example usage as a FastAPI dependency
-"""
-# In your API router:
-from fastapi import Depends, APIRouter
-from ..tools.mock_azure_service import get_mock_azure_service
-from ..core.azure_service import AzureResourceService
-
-router = APIRouter()
-
-@router.get("/subscriptions")
-async def list_subscriptions(
-    azure_service: AzureResourceService = Depends(get_mock_azure_service)
-):
-    return await azure_service.get_subscriptions()
-"""
 
 
 # Standalone example usage

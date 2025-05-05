@@ -37,11 +37,6 @@ def cached_azure_operation(model_class: Type[T] = None, cache_key_prefix: str = 
             # Extract refresh_cache from kwargs
             refresh_cache = kwargs.get("refresh_cache", False)
 
-            # Get resource name from the function name or the first argument
-            resource_name = None
-            if len(args) > 0 and isinstance(args[-1], str):
-                resource_name = args[-1]
-
             # Generate cache key
             func_name = func.__name__
             if cache_key_prefix:
@@ -81,13 +76,13 @@ def cached_azure_operation(model_class: Type[T] = None, cache_key_prefix: str = 
                 return result
             except ResourceNotFoundError as e:
                 resource_type = func_name.replace("get_", "")
-                self._log_warning(f"{resource_type.capitalize()} not found: {e}")
+                self._log_warning(f"{resource_type.capitalize()} not found")
                 raise
             except ClientAuthenticationError as e:
-                self._log_error(f"Authentication error in {func_name}: {e}")
+                self._log_error(f"Authentication error in {func_name}")
                 raise
             except Exception as e:
-                self._log_error(f"Error in {func_name}: {e}")
+                self._log_error(f"Error in {func_name}: {type(e).__name__}")
                 raise
 
         return wrapper

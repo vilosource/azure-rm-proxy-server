@@ -123,90 +123,128 @@ def display_virtual_machines(vms: List[Dict[str, Any]], output_format: str) -> N
         console.print(table)
 
 
+def display_basic_vm_info(vm: Dict[str, Any]) -> None:
+    """Display basic information about a virtual machine."""
+    console.print(f"[bold cyan]VM Details: {vm['name']}[/bold cyan]")
+    console.print(f"ID: {vm['id']}")
+    console.print(f"Location: {vm['location']}")
+    console.print(f"Size: {vm['vm_size']}")
+    if vm.get("os_type"):
+        console.print(f"OS Type: {vm['os_type']}")
+    if vm.get("power_state"):
+        console.print(f"Power State: {vm['power_state']}")
+    console.print()
+
+
+def display_network_interfaces(interfaces: List[Dict[str, Any]]) -> None:
+    """Display network interfaces for a VM."""
+    if not interfaces:
+        return
+        
+    table = Table(title="Network Interfaces")
+    table.add_column("Name", style="green")
+    table.add_column("Private IPs", style="yellow")
+    table.add_column("Public IPs", style="red")
+
+    for nic in interfaces:
+        table.add_row(
+            nic["name"],
+            ", ".join(nic["private_ip_addresses"]),
+            ", ".join(nic["public_ip_addresses"]),
+        )
+
+    console.print(table)
+    console.print()
+
+
+def display_nsg_rules(rules: List[Dict[str, Any]]) -> None:
+    """Display network security group rules for a VM."""
+    if not rules:
+        return
+        
+    table = Table(title="Effective NSG Rules")
+    table.add_column("Name", style="green")
+    table.add_column("Direction", style="yellow")
+    table.add_column("Protocol", style="blue")
+    table.add_column("Port Range", style="magenta")
+    table.add_column("Access", style="red")
+
+    for rule in rules:
+        table.add_row(
+            rule["name"],
+            rule["direction"],
+            rule["protocol"],
+            rule["port_range"],
+            rule["access"],
+        )
+
+    console.print(table)
+    console.print()
+
+
+def display_routes(routes: List[Dict[str, Any]]) -> None:
+    """Display effective routes for a VM."""
+    if not routes:
+        return
+        
+    table = Table(title="Effective Routes")
+    table.add_column("Address Prefix", style="green")
+    table.add_column("Next Hop Type", style="yellow")
+    table.add_column("Next Hop IP", style="blue")
+    table.add_column("Origin", style="magenta")
+
+    for route in routes:
+        table.add_row(
+            route["address_prefix"],
+            route["next_hop_type"],
+            route["next_hop_ip"] or "",
+            route["route_origin"],
+        )
+
+    console.print(table)
+    console.print()
+
+
+def display_aad_groups(groups: List[Dict[str, Any]]) -> None:
+    """Display AAD groups for a VM."""
+    if not groups:
+        return
+        
+    table = Table(title="Azure AD Group Access")
+    table.add_column("ID", style="green")
+    table.add_column("Display Name", style="yellow")
+
+    for group in groups:
+        table.add_row(group["id"], group.get("display_name", ""))
+
+    console.print(table)
+    console.print()
+
+
 def display_vm_details(vm: Dict[str, Any], output_format: str) -> None:
     """Display details of a specific virtual machine."""
     if output_format == "json":
         console.print(json.dumps(vm, indent=2))
-    else:  # table format
-        # Basic VM info
-        console.print(f"[bold cyan]VM Details: {vm['name']}[/bold cyan]")
-        console.print(f"ID: {vm['id']}")
-        console.print(f"Location: {vm['location']}")
-        console.print(f"Size: {vm['vm_size']}")
-        if vm.get("os_type"):
-            console.print(f"OS Type: {vm['os_type']}")
-        if vm.get("power_state"):
-            console.print(f"Power State: {vm['power_state']}")
-
-        console.print()
-
-        # Network interfaces
-        if "network_interfaces" in vm:
-            table = Table(title="Network Interfaces")
-            table.add_column("Name", style="green")
-            table.add_column("Private IPs", style="yellow")
-            table.add_column("Public IPs", style="red")
-
-            for nic in vm["network_interfaces"]:
-                table.add_row(
-                    nic["name"],
-                    ", ".join(nic["private_ip_addresses"]),
-                    ", ".join(nic["public_ip_addresses"]),
-                )
-
-            console.print(table)
-            console.print()
-
-        # NSG Rules
-        if "effective_nsg_rules" in vm and vm["effective_nsg_rules"]:
-            table = Table(title="Effective NSG Rules")
-            table.add_column("Name", style="green")
-            table.add_column("Direction", style="yellow")
-            table.add_column("Protocol", style="blue")
-            table.add_column("Port Range", style="magenta")
-            table.add_column("Access", style="red")
-
-            for rule in vm["effective_nsg_rules"]:
-                table.add_row(
-                    rule["name"],
-                    rule["direction"],
-                    rule["protocol"],
-                    rule["port_range"],
-                    rule["access"],
-                )
-
-            console.print(table)
-            console.print()
-
-        # Routes
-        if "effective_routes" in vm and vm["effective_routes"]:
-            table = Table(title="Effective Routes")
-            table.add_column("Address Prefix", style="green")
-            table.add_column("Next Hop Type", style="yellow")
-            table.add_column("Next Hop IP", style="blue")
-            table.add_column("Origin", style="magenta")
-
-            for route in vm["effective_routes"]:
-                table.add_row(
-                    route["address_prefix"],
-                    route["next_hop_type"],
-                    route["next_hop_ip"] or "",
-                    route["route_origin"],
-                )
-
-            console.print(table)
-            console.print()
-
-        # AAD Groups
-        if "aad_groups" in vm and vm["aad_groups"]:
-            table = Table(title="Azure AD Group Access")
-            table.add_column("ID", style="green")
-            table.add_column("Display Name", style="yellow")
-
-            for group in vm["aad_groups"]:
-                table.add_row(group["id"], group.get("display_name", ""))
-
-            console.print(table)
+        return
+    
+    # Display formatted table output
+    display_basic_vm_info(vm)
+    
+    # Display network interfaces
+    interfaces = vm.get("network_interfaces", [])
+    display_network_interfaces(interfaces)
+    
+    # Display NSG rules
+    nsg_rules = vm.get("effective_nsg_rules", [])
+    display_nsg_rules(nsg_rules)
+    
+    # Display routes
+    routes = vm.get("effective_routes", [])
+    display_routes(routes)
+    
+    # Display AAD groups
+    aad_groups = vm.get("aad_groups", [])
+    display_aad_groups(aad_groups)
 
 
 async def list_subscriptions(args: argparse.Namespace) -> None:

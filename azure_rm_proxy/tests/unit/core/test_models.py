@@ -250,5 +250,6 @@ class TestModels:
         assert vm_report_full.purpose == "Web Server"
         assert vm_report_full.ip_addresses == ["10.0.0.4"]
         assert vm_report_full.public_ip_addresses == ["20.30.40.50"]
-        assert vm_report_full.os_disk_size_gb == 128.0
+        # Use approximate comparison for floating point values
+        assert abs(vm_report_full.os_disk_size_gb - 128.0) < 0.0001
         assert vm_report_full.subscription_name == "Test Subscription"
