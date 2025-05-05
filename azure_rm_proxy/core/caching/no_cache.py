@@ -28,13 +28,14 @@ class NoCache(BaseCache):
         logger.debug(f"No-op cache get for {key} (always returns None)")
         return None
 
-    def set(self, key: str, value: Any) -> None:
+    def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
         """
         No-op implementation of set.
 
         Args:
             key: The cache key
             value: The value to cache
+            ttl: Optional time to live in seconds
         """
         logger.debug(f"No-op cache set for {key} (does nothing)")
 
