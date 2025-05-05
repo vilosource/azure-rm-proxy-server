@@ -67,7 +67,7 @@ class ResourceCommand(CommandGroup):
         subcommands = self.get_subcommands()
         if not subcommands:
             logger.info("No subcommands available")
-            return True
+            return False
             
         logger.info(f"Available subcommands for {self.name}:")
         for subcmd_name, subcmd_class in subcommands.items():

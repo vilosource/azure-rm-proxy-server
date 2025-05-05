@@ -6,6 +6,12 @@ import json
 
 logger = logging.getLogger(__name__)
 
+# Constants for commonly used strings
+HELP_SUBSCRIPTION_ID = "Azure subscription ID"
+HELP_REFRESH_CACHE = "Refresh the cache"
+HELP_OUTPUT_FILE = "Output file to save results (optional)"
+HELP_RESOURCE_GROUP = "Resource group name"
+
 @CommandRegistry.register
 class RouteTablesCommand(BaseCommand):
     @property
@@ -23,33 +29,33 @@ class RouteTablesCommand(BaseCommand):
         
         # List route tables command
         list_parser = rt_subparsers.add_parser("list", help="List route tables in a subscription")
-        list_parser.add_argument("--subscription-id", required=True, help="Azure subscription ID")
-        list_parser.add_argument("--refresh-cache", action="store_true", help="Refresh the cache")
-        list_parser.add_argument("--output", help="Output file to save results (optional)")
+        list_parser.add_argument("--subscription-id", required=True, help=HELP_SUBSCRIPTION_ID)
+        list_parser.add_argument("--refresh-cache", action="store_true", help=HELP_REFRESH_CACHE)
+        list_parser.add_argument("--output", help=HELP_OUTPUT_FILE)
         
         # Get route table details command
         details_parser = rt_subparsers.add_parser("get", help="Get details of a route table")
-        details_parser.add_argument("--subscription-id", required=True, help="Azure subscription ID")
-        details_parser.add_argument("--resource-group", required=True, help="Resource group name")
+        details_parser.add_argument("--subscription-id", required=True, help=HELP_SUBSCRIPTION_ID)
+        details_parser.add_argument("--resource-group", required=True, help=HELP_RESOURCE_GROUP)
         details_parser.add_argument("--name", required=True, help="Route table name")
-        details_parser.add_argument("--refresh-cache", action="store_true", help="Refresh the cache")
-        details_parser.add_argument("--output", help="Output file to save results (optional)")
+        details_parser.add_argument("--refresh-cache", action="store_true", help=HELP_REFRESH_CACHE)
+        details_parser.add_argument("--output", help=HELP_OUTPUT_FILE)
         
         # Get VM effective routes command
         vm_routes_parser = rt_subparsers.add_parser("vm-routes", help="Get effective routes for a virtual machine")
-        vm_routes_parser.add_argument("--subscription-id", required=True, help="Azure subscription ID")
-        vm_routes_parser.add_argument("--resource-group", required=True, help="Resource group name")
+        vm_routes_parser.add_argument("--subscription-id", required=True, help=HELP_SUBSCRIPTION_ID)
+        vm_routes_parser.add_argument("--resource-group", required=True, help=HELP_RESOURCE_GROUP)
         vm_routes_parser.add_argument("--vm-name", required=True, help="Virtual machine name")
-        vm_routes_parser.add_argument("--refresh-cache", action="store_true", help="Refresh the cache")
-        vm_routes_parser.add_argument("--output", help="Output file to save results (optional)")
+        vm_routes_parser.add_argument("--refresh-cache", action="store_true", help=HELP_REFRESH_CACHE)
+        vm_routes_parser.add_argument("--output", help=HELP_OUTPUT_FILE)
         
         # Get NIC effective routes command
         nic_routes_parser = rt_subparsers.add_parser("nic-routes", help="Get effective routes for a network interface")
-        nic_routes_parser.add_argument("--subscription-id", required=True, help="Azure subscription ID")
-        nic_routes_parser.add_argument("--resource-group", required=True, help="Resource group name")
+        nic_routes_parser.add_argument("--subscription-id", required=True, help=HELP_SUBSCRIPTION_ID)
+        nic_routes_parser.add_argument("--resource-group", required=True, help=HELP_RESOURCE_GROUP)
         nic_routes_parser.add_argument("--nic-name", required=True, help="Network interface name")
-        nic_routes_parser.add_argument("--refresh-cache", action="store_true", help="Refresh the cache")
-        nic_routes_parser.add_argument("--output", help="Output file to save results (optional)")
+        nic_routes_parser.add_argument("--refresh-cache", action="store_true", help=HELP_REFRESH_CACHE)
+        nic_routes_parser.add_argument("--output", help=HELP_OUTPUT_FILE)
 
     def execute(self):
         """Execute the appropriate route table operation based on the subcommand."""

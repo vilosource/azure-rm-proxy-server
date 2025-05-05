@@ -51,7 +51,7 @@ class SubscriptionsCommand(BaseCommand):
 
         # Use the SubscriptionsWorker to fetch subscriptions
         worker = SubscriptionsWorker()
-        refresh_cache = self.args.refresh_cache if self.args else False  # Safely access refresh_cache
+        refresh_cache = self.args.get('refresh_cache', False) if isinstance(self.args, dict) else False
         try:
             subscriptions = worker.execute(refresh_cache=refresh_cache)
             logger.debug("Fetched %d subscriptions", len(subscriptions))

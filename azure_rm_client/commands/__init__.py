@@ -40,6 +40,80 @@ class CommandRegistry:
         return decorator
     
     @classmethod
+    def _validate_command_class(cls, cmd_class: Type[BaseCommand]) -> str:
+        """
+        Validate the command class and return its name.
+        
+        Args:
+            cmd_class: The command class to validate
+            
+        Returns:
+            The command name
+            
+        Raises:
+            ValueError: If the command class doesn't have a name property
+        """
+        # Create a temporary instance to get the name
+        temp_instance = cmd_class.__new__(cmd_class)
+        command_name = getattr(temp_instance, 'name', None)
+        if command_name is None:
+            raise ValueError(f"Command class {cmd_class.__name__} does not have a name property")
+        return command_name
+        
+    @classmethod
+    def _validate_parent_command(cls, parent_path: List[str]) -> None:
+        """
+        Validate that the parent command exists.
+        
+        Args:
+            parent_path: The parent command path split into segments
+            
+        Raises:
+            ValueError: If the parent command doesn't exist
+        """
+        if parent_path[0] not in cls._commands:
+            raise ValueError(f"Parent command '{parent_path[0]}' does not exist")
+        
+    @classmethod
+    def _register_direct_subcommand(cls, parent_command: str, command_name: str, cmd_class: Type[BaseCommand]) -> None:
+        """
+        Register a subcommand directly under a top-level command.
+        
+        Args:
+            parent_command: The parent command name
+            command_name: The subcommand name
+            cmd_class: The subcommand class
+        """
+        # Initialize hierarchy if needed
+        if parent_command not in cls._command_hierarchy:
+            cls._command_hierarchy[parent_command] = {}
+        
+        # Register the subcommand
+        cls._command_hierarchy[parent_command][command_name] = cmd_class
+        
+    @classmethod
+    def _register_nested_subcommand(cls, parent_path: List[str], command_name: str, cmd_class: Type[BaseCommand]) -> None:
+        """
+        Register a subcommand under a nested command path.
+        
+        Args:
+            parent_path: The parent command path split into segments
+            command_name: The subcommand name
+            cmd_class: The subcommand class
+        """
+        # Initialize hierarchy for the top-level command if needed
+        if parent_path[0] not in cls._command_hierarchy:
+            cls._command_hierarchy[parent_path[0]] = {}
+        
+        # Handle multi-level nesting by using a command path key in the hierarchy
+        nested_key = '.'.join(parent_path)
+        if nested_key not in cls._command_hierarchy:
+            cls._command_hierarchy[nested_key] = {}
+        
+        # Register the nested subcommand
+        cls._command_hierarchy[nested_key][command_name] = cmd_class
+        
+    @classmethod
     def register_subcommand(cls, parent_command: str, command_class: Type[BaseCommand] = None) -> Callable:
         """
         Decorator for registering subcommands.
@@ -57,44 +131,20 @@ class CommandRegistry:
             Decorator function or the original class if used directly
         """
         def decorator(cmd_class: Type[BaseCommand]) -> Type[BaseCommand]:
-            # Create a temporary instance to get the name
-            temp_instance = cmd_class.__new__(cmd_class)
-            command_name = getattr(temp_instance, 'name', None)
-            if command_name is None:
-                raise ValueError(f"Command class {cmd_class.__name__} does not have a name property")
+            # Validate and get command name
+            command_name = cls._validate_command_class(cmd_class)
             
             # Split parent command path into segments
             parent_path = parent_command.split('.')
             
-            # If it's a direct subcommand of a top-level command
+            # Validate parent command exists
+            cls._validate_parent_command(parent_path)
+            
+            # Register as direct or nested subcommand
             if len(parent_path) == 1:
-                # Ensure parent command exists
-                if parent_path[0] not in cls._commands:
-                    raise ValueError(f"Parent command '{parent_path[0]}' does not exist")
-                
-                # Initialize hierarchy if needed
-                if parent_path[0] not in cls._command_hierarchy:
-                    cls._command_hierarchy[parent_path[0]] = {}
-                
-                # Register the subcommand
-                cls._command_hierarchy[parent_path[0]][command_name] = cmd_class
+                cls._register_direct_subcommand(parent_path[0], command_name, cmd_class)
             else:
-                # For nested subcommands (e.g., "resource.group")
-                # Ensure top-level parent command exists
-                if parent_path[0] not in cls._commands:
-                    raise ValueError(f"Top-level parent command '{parent_path[0]}' does not exist")
-                
-                # Initialize hierarchy for the top-level command if needed
-                if parent_path[0] not in cls._command_hierarchy:
-                    cls._command_hierarchy[parent_path[0]] = {}
-                
-                # Handle multi-level nesting by using a command path key in the hierarchy
-                nested_key = '.'.join(parent_path)
-                if nested_key not in cls._command_hierarchy:
-                    cls._command_hierarchy[nested_key] = {}
-                
-                # Register the nested subcommand
-                cls._command_hierarchy[nested_key][command_name] = cmd_class
+                cls._register_nested_subcommand(parent_path, command_name, cmd_class)
             
             return cmd_class
         
