@@ -11,6 +11,14 @@ from azure.core.exceptions import ResourceNotFoundError, ClientAuthenticationErr
 
 logger = logging.getLogger(__name__)
 
+# Constants for path parameter titles
+TITLE_SUBSCRIPTION_ID = "Azure Subscription ID"
+TITLE_RESOURCE_GROUP = "Resource Group Name"
+TITLE_ROUTE_TABLE = "Route Table Name"
+TITLE_VM_NAME = "Virtual Machine Name"
+TITLE_NIC_NAME = "Network Interface Name"
+TITLE_AUTH_FAILED = "Authentication failed"
+
 router = APIRouter(tags=["Route Table"], prefix="/api/subscriptions/{subscription_id}")
 
 
@@ -21,7 +29,7 @@ router = APIRouter(tags=["Route Table"], prefix="/api/subscriptions/{subscriptio
     description="Get all route tables for a subscription.",
 )
 async def list_route_tables(
-    subscription_id: str = Path(..., title="Azure Subscription ID"),
+    subscription_id: str = Path(..., title=TITLE_SUBSCRIPTION_ID),
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
 ):
@@ -39,7 +47,7 @@ async def list_route_tables(
     except ResourceNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ClientAuthenticationError:
-        raise HTTPException(status_code=401, detail="Authentication failed")
+        raise HTTPException(status_code=401, detail=TITLE_AUTH_FAILED)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
@@ -51,9 +59,9 @@ async def list_route_tables(
     description="Get detailed information about a specific route table.",
 )
 async def get_route_table_details(
-    subscription_id: str = Path(..., title="Azure Subscription ID"),
-    resource_group_name: str = Path(..., title="Resource Group Name"),
-    route_table_name: str = Path(..., title="Route Table Name"),
+    subscription_id: str = Path(..., title=TITLE_SUBSCRIPTION_ID),
+    resource_group_name: str = Path(..., title=TITLE_RESOURCE_GROUP),
+    route_table_name: str = Path(..., title=TITLE_ROUTE_TABLE),
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
 ):
@@ -76,7 +84,7 @@ async def get_route_table_details(
     except ResourceNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ClientAuthenticationError:
-        raise HTTPException(status_code=401, detail="Authentication failed")
+        raise HTTPException(status_code=401, detail=TITLE_AUTH_FAILED)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
@@ -88,9 +96,9 @@ async def get_route_table_details(
     description="Get all effective routes for a specific virtual machine.",
 )
 async def get_vm_effective_routes(
-    subscription_id: str = Path(..., title="Azure Subscription ID"),
-    resource_group_name: str = Path(..., title="Resource Group Name"),
-    vm_name: str = Path(..., title="Virtual Machine Name"),
+    subscription_id: str = Path(..., title=TITLE_SUBSCRIPTION_ID),
+    resource_group_name: str = Path(..., title=TITLE_RESOURCE_GROUP),
+    vm_name: str = Path(..., title=TITLE_VM_NAME),
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
 ):
@@ -110,7 +118,7 @@ async def get_vm_effective_routes(
     except ResourceNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ClientAuthenticationError:
-        raise HTTPException(status_code=401, detail="Authentication failed")
+        raise HTTPException(status_code=401, detail=TITLE_AUTH_FAILED)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred: {e}")
 
@@ -122,9 +130,9 @@ async def get_vm_effective_routes(
     description="Get all effective routes for a specific network interface.",
 )
 async def get_nic_effective_routes(
-    subscription_id: str = Path(..., title="Azure Subscription ID"),
-    resource_group_name: str = Path(..., title="Resource Group Name"),
-    nic_name: str = Path(..., title="Network Interface Name"),
+    subscription_id: str = Path(..., title=TITLE_SUBSCRIPTION_ID),
+    resource_group_name: str = Path(..., title=TITLE_RESOURCE_GROUP),
+    nic_name: str = Path(..., title=TITLE_NIC_NAME),
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
 ):
@@ -147,7 +155,7 @@ async def get_nic_effective_routes(
             detail=f"Network interface {nic_name} not found in resource group {resource_group_name}.",
         )
     except ClientAuthenticationError:
-        raise HTTPException(status_code=401, detail="Authentication failed.")
+        raise HTTPException(status_code=401, detail=TITLE_AUTH_FAILED)
     except Exception as e:
         logger.error(
             f"Error getting effective routes for network interface {nic_name}: {e}"
