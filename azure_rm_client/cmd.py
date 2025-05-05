@@ -182,7 +182,6 @@ def execute_command_or_subcommand(
     
     # Build the full command path
     command_path = main_command
-    current_command_class = CommandRegistry.get_command(main_command)
     
     # Process each subcommand in the chain
     for i, subcommand in enumerate(subcommands):
@@ -213,7 +212,6 @@ def execute_command_or_subcommand(
         
         # Not the last subcommand - update path and continue
         command_path = f"{command_path}.{subcommand}"
-        current_command_class = available_subcommands[subcommand]
     
     # We should never reach here
     logger.error("Error executing command chain")
@@ -239,11 +237,10 @@ def main(args: Optional[List[str]] = None) -> int:
     # Execute the command if specified
     if parsed_args.command:
         # Convert parsed_args to a dict for the command constructor
-
         cmd_args = vars(parsed_args)
         
-        # Remove debug flag
-        debug = cmd_args.pop('debug', False)
+        # Remove debug flag since we've handled it already
+        cmd_args.pop('debug', False)
         
         # Extract the command and subcommand chain
         main_command, subcommands = extract_subcommand_chain(cmd_args)

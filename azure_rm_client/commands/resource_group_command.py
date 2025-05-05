@@ -70,10 +70,10 @@ class ResourceGroupCommand(CommandGroup):
         if not subcommands:
             logger.info("No subcommands available for resource group")
             logger.info("Use 'resource group list' to list resource groups")
-            logger.info("Use 'resource group show --name <name>' to show details of a resource group")
+            logger.info("Use 'resource group show --name <n>' to show details of a resource group")
             return True
             
-        logger.info(f"Available subcommands for resource group:")
+        logger.info("Available subcommands for resource group:")
         for subcmd_name, subcmd_class in subcommands.items():
             temp_instance = subcmd_class.__new__(subcmd_class)
             description = getattr(temp_instance, 'description', f"Execute the {subcmd_name} subcommand")
