@@ -1,0 +1,115 @@
+{
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "100"
+    ],
+    "editor.formatOnSave": true,
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/src",
+        "${workspaceFolder}/python-sdk/src"
+    ],
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "makefile.configureOnOpen": false,
+    "mcp": {
+        "servers": {
+            "mcp-atlassian": {
+                "command": "docker",
+                "args": [
+                    "run",
+                    "--rm",
+                    "-i",
+                    "mcp/atlassian",
+                    "--jira-url=https://optiscangroup.atlassian.net",
+                    "--jira-username=jason.viloria@optiscangroup.com",
+                    "--jira-token=${input:jira_token}"
+                ]
+            },
+            "mcp-azure": {
+                "command": "poetry",
+                "args": [
+                    "--directory",
+                    "/home/jasonvi/Projects/mcp-vf-azure",
+                    "run",
+                    "python",
+                    "-m",
+                    "mcp_vf_azure.server"
+                ],
+                "env": {
+                    "AZURE_CLIENT_ID": "${input:azure_client_id}",
+                    "AZURE_CLIENT_SECRET": "${input:azure_client_secret}",
+                    "AZURE_TENANT_ID": "${input:azure_tenant_id}"
+                }
+            },
+            "mcp-mediawiki": {
+                "command": "poetry",
+                "args": [
+                    "--directory",
+                    "/home/jasonvi/Projects/mcplab",
+                    "run",
+                    "python",
+                    "-m",
+                    "mcp_mediawiki.server",
+                    "--url=${input:mediawiki_url}",
+                    "--username=${input:mediawiki_username}",
+                    "--password=${input:mediawiki_password}"
+                ]
+            }
+        },
+        "inputs": [
+            {
+                "id": "jira_token",
+                "type": "promptString",
+                "description": "Jira API Token",
+                "password": true
+            },
+            {
+                "id": "confluence_token",
+                "type": "promptString",
+                "description": "Confluence API Token",
+                "password": true
+            },
+            {
+                "id": "mediawiki_url",
+                "type": "promptString",
+                "description": "MediaWiki URL",
+                "password": false
+            },
+            {
+                "id": "mediawiki_username",
+                "type": "promptString",
+                "description": "MediaWiki Username",
+                "password": false
+            },
+            {
+                "id": "mediawiki_password",
+                "type": "promptString",
+                "description": "MediaWiki Password",
+                "password": true
+            },
+            {
+                "id": "azure_client_id",
+                "type": "promptString",
+                "description": "Azure Client ID",
+                "password": false
+            },
+            {
+                "id": "azure_client_secret",
+                "type": "promptString",
+                "description": "Azure Client Secret",
+                "password": true
+            },
+            {
+                "id": "azure_tenant_id",
+                "type": "promptString",
+                "description": "Azure Tenant ID",
+                "password": false
+            }
+        ]
+    }

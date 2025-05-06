@@ -1,0 +1,162 @@
+# Azure RM MCP Server Tools Guide
+
+This document describes the available MCP tools for interacting with Azure resources and how to use them effectively to answer common questions.
+
+## Available MCP Tools
+
+The following tools are available through the Azure RM MCP Server:
+
+1. **list_subscriptions**
+   - Description: Get list of Azure subscriptions for the authenticated user
+   - Parameters: 
+     - refresh_cache (optional): Whether to bypass cache and fetch fresh data
+
+2. **list_resource_groups**
+   - Description: List resource groups in an Azure subscription
+   - Parameters:
+     - subscription_id (required): The Azure subscription ID
+     - refresh_cache (optional): Whether to bypass cache and fetch fresh data
+
+3. **list_virtual_machines**
+   - Description: List virtual machines in an Azure subscription or resource group
+   - Parameters:
+     - subscription_id (required): The Azure subscription ID
+     - resource_group (optional): The resource group name
+     - refresh_cache (optional): Whether to bypass cache and fetch fresh data
+
+4. **get_virtual_machine**
+   - Description: Get details of a specific virtual machine
+   - Parameters:
+     - subscription_id (required): The Azure subscription ID
+     - resource_group (required): The resource group name
+     - vm_name (required): The virtual machine name
+     - refresh_cache (optional): Whether to bypass cache and fetch fresh data
+
+5. **list_route_tables**
+   - Description: List route tables in an Azure resource group
+   - Parameters:
+     - subscription_id (required): The Azure subscription ID
+     - resource_group (required): The resource group name
+     - refresh_cache (optional): Whether to bypass cache and fetch fresh data
+
+6. **get_vm_hostnames**
+   - Description: Get hostnames for virtual machines in an Azure subscription
+   - Parameters:
+     - subscription_id (required): The Azure subscription ID
+     - resource_group (optional): The resource group name
+     - refresh_cache (optional): Whether to bypass cache and fetch fresh data
+
+7. **generate_vm_report**
+   - Description: Generate a report of virtual machines in an Azure subscription or resource group
+   - Parameters:
+     - subscription_id (required): The Azure subscription ID
+     - resource_group (optional): The resource group name
+     - refresh_cache (optional): Whether to bypass cache and fetch fresh data
+
+8. **get_vm_shortcuts**
+   - Description: Get shortcuts for virtual machines in an Azure subscription
+   - Parameters:
+     - subscription_id (required): The Azure subscription ID
+     - resource_group (optional): The resource group name
+     - refresh_cache (optional): Whether to bypass cache and fetch fresh data
+
+9. **fetch_azure_rm_api**
+   - Description: Make a direct call to the Azure RM API
+   - Parameters:
+     - endpoint (required): The API endpoint path
+     - params (optional): Query parameters to include in the request
+     - refresh_cache (optional): Whether to bypass cache and fetch fresh data
+
+## Response Format
+
+All tools return responses in a standardized JSON format:
+
+For successful operations:
+```
+{
+  "status": "success",
+  "data_field": [...data specific to each tool...]
+}
+```
+
+For errors:
+```
+{
+  "status": "error",
+  "message": "Error message details"
+}
+```
+
+Where "data_field" will be the appropriate name for the data being returned (e.g., "subscriptions", "virtual_machines", etc.)
+
+## Common Questions and How to Answer Them
+
+### "Find a VM by hostname"
+
+To find a VM by hostname (e.g., "gitlab-1.prod.optiscangroup.com"):
+1. Use `list_subscriptions` to get all subscriptions
+2. For each subscription, use `get_vm_hostnames` to get all VM hostnames
+3. Look for a match with the target hostname
+4. Once found, note the VM name and which subscription it belongs to
+5. To get details about the VM, you'll need to determine its resource group
+6. Use `list_resource_groups` with the subscription ID
+7. For each resource group, try to get VM details using `get_virtual_machine`
+
+### "What is the IP address of a specific server?"
+
+1. First find the VM by hostname as described above
+2. When you get the VM details using `get_virtual_machine`, look at the `network_interfaces` section
+3. The private IP addresses are in `private_ip_addresses` array
+4. The public IP addresses are in `public_ip_addresses` array
+
+### "Show me all VMs in production"
+
+1. Use `list_subscriptions` to get all subscriptions
+2. Look for subscriptions with "prod" in the name
+3. For each production subscription, use `list_resource_groups`
+4. Filter for resource groups with "prod" in the name
+5. For each production resource group, use `list_virtual_machines`
+6. Compile all VMs from production resource groups
+
+### "Show me network routes for a VM"
+
+1. First identify the VM and its resource group
+2. Use `get_virtual_machine` to get VM details
+3. In the response, examine the `effective_routes` array
+4. To find specific route types, filter the array by `next_hop_type` (e.g., "VirtualNetworkGateway" for VPN routes)
+
+### "Find all VMs in a specific location"
+
+1. Use `list_subscriptions` to get all subscriptions
+2. For each subscription, use `list_resource_groups`
+3. For each resource group, use `list_virtual_machines`
+4. Filter the VMs by their `location` property
+
+### "Tell me about our Azure infrastructure"
+
+1. Use `list_subscriptions` to get an overview of all subscriptions
+2. For each subscription, use `generate_vm_report` to get comprehensive VM information
+3. Summarize the data by subscription, region, VM sizes, etc.
+
+## Tips for Efficient Use
+
+1. **Start with subscriptions**: Almost all queries require knowing the subscription ID
+2. **Use specific tools**: For example, use `get_vm_hostnames` rather than fetching all VMs when looking for a specific hostname
+3. **Consider context**: When possible, use the context from previous operations to narrow down searches
+4. **Handle errors gracefully**: Check the status field in all responses and provide helpful information if an error occurs
+5. **Provide complete answers**: When answering questions, include relevant details like VM sizes, regions, and network configurations
+
+## Example Workflow: Finding a VM and Its Network Configuration
+
+Here's a step-by-step example of how to answer the question "What are the network settings for the GitLab server?":
+
+1. Start by using the `list_subscriptions` tool to get all available subscriptions
+2. Use the `get_vm_hostnames` tool with each subscription ID to find VMs with names or hostnames containing "gitlab"
+3. When you find a matching VM, note its VM name and subscription ID
+4. Use the `list_resource_groups` tool with that subscription ID to get all resource groups
+5. For each resource group, try using the `get_virtual_machine` tool with the VM name until you find the VM
+6. From the VM details, examine the network_interfaces section for IP information
+7. Look at effective_routes for routing information
+8. If needed, use `list_route_tables` to get more detailed routing information
+
+Remember to explain your findings in a clear, organized way that directly answers the user's question.

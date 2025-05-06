@@ -1,0 +1,31 @@
+{
+    "python.linting.enabled": true,
+    "python.linting.pylintEnabled": true,
+    "python.formatting.provider": "black",
+    "python.formatting.blackArgs": [
+        "--line-length",
+        "100"
+    ],
+    "editor.formatOnSave": true,
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}/src",
+        "${workspaceFolder}/python-sdk/src"
+    ],
+    "python.testing.pytestArgs": [
+        "tests"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "makefile.configureOnOpen": false,
+    "mcp": {
+        "servers": {
+            "azure-rm-mcp-server": {
+                "command": "/bin/bash",
+                "args": [
+                    "-c",
+                    "cd ${workspaceFolder} && poetry run mcp-server"
+                ]
+            }
+        }
+    }
+}
