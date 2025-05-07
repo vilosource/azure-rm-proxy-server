@@ -15,6 +15,4 @@ async def list_resource_groups(
     refresh_cache: bool = Query(False, alias="refresh-cache"),
     azure_service: AzureResourceService = Depends(get_azure_service),
 ):
-    return await azure_service.get_resource_groups(
-        subscription_id, refresh_cache=refresh_cache
-    )
+    return await azure_service.get_resource_groups(subscription_id, refresh_cache=refresh_cache)

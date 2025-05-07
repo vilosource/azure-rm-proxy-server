@@ -77,16 +77,16 @@ class CacheFactory:
         from .no_cache import NoCache
 
         if cache_type == CacheType.MEMORY:
-            return MemoryCache(**kwargs)
+            return MemoryCache(**kwargs)  # type: ignore
         elif cache_type == CacheType.NO_CACHE:
-            return NoCache(**kwargs)
+            return NoCache(**kwargs)  # type: ignore
         elif cache_type == CacheType.REDIS:
             try:
                 from .redis_cache import RedisCache
 
-                return RedisCache(**kwargs)
+                return RedisCache(**kwargs)  # type: ignore
             except ImportError:
                 print("Redis dependencies not installed. Falling back to memory cache.")
-                return MemoryCache(**kwargs)
+                return MemoryCache(**kwargs)  # type: ignore
         else:
             raise ValueError(f"Unknown cache type: {cache_type}")

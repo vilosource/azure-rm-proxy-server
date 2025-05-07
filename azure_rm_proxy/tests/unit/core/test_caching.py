@@ -52,9 +52,9 @@ class TestCaching:
         # Arrange
         mock_redis_cache = MagicMock(spec=CacheStrategy)
         sys.modules["azure_rm_proxy.core.caching.redis_cache"] = MagicMock()
-        sys.modules[
-            "azure_rm_proxy.core.caching.redis_cache"
-        ].RedisCache.return_value = mock_redis_cache
+        sys.modules["azure_rm_proxy.core.caching.redis_cache"].RedisCache.return_value = (
+            mock_redis_cache
+        )
 
         # Act
         result = CacheFactory.create_cache(CacheType.REDIS)
@@ -76,9 +76,7 @@ class TestCaching:
                     "azure_rm_proxy.core.caching.memory_cache.MemoryCache",
                     return_value=memory_mock,
                 ):
-                    print(
-                        "Redis dependencies not installed. Falling back to memory cache."
-                    )
+                    print("Redis dependencies not installed. Falling back to memory cache.")
                     return memory_mock
             return MagicMock()  # Return a different mock for other cache types
 

@@ -1,10 +1,14 @@
 from .worker_base import Worker
 
+
 class VirtualMachinesWorker(Worker):
     """
     Worker for handling operations related to virtual machines.
     """
-    def list_virtual_machines(self, subscription_id: str, resource_group_name: str, refresh_cache: bool = False):
+
+    def list_virtual_machines(
+        self, subscription_id: str, resource_group_name: str, refresh_cache: bool = False
+    ):
         """
         List virtual machines in a specific resource group.
 
@@ -25,17 +29,29 @@ class VirtualMachinesWorker(Worker):
         params = {"refresh-cache": refresh_cache}
 
         try:
-            logger.debug(f"Fetching virtual machines for subscription {subscription_id}, resource group {resource_group_name} with refresh_cache={refresh_cache}")
+            logger.debug(
+                f"Fetching virtual machines for subscription {subscription_id}, resource group {resource_group_name} with refresh_cache={refresh_cache}"
+            )
             response = requests.get(endpoint, params=params)
             response.raise_for_status()
             virtual_machines = response.json()
-            logger.debug(f"Fetched {len(virtual_machines)} virtual machines for resource group {resource_group_name}")
+            logger.debug(
+                f"Fetched {len(virtual_machines)} virtual machines for resource group {resource_group_name}"
+            )
             return virtual_machines
         except requests.RequestException as e:
-            logger.error(f"Failed to fetch virtual machines for resource group {resource_group_name}: {e}")
+            logger.error(
+                f"Failed to fetch virtual machines for resource group {resource_group_name}: {e}"
+            )
             raise
 
-    def get_virtual_machine_details(self, subscription_id: str, resource_group_name: str, vm_name: str, refresh_cache: bool = False):
+    def get_virtual_machine_details(
+        self,
+        subscription_id: str,
+        resource_group_name: str,
+        vm_name: str,
+        refresh_cache: bool = False,
+    ):
         """
         Get details of a specific virtual machine.
 
@@ -57,7 +73,9 @@ class VirtualMachinesWorker(Worker):
         params = {"refresh-cache": refresh_cache}
 
         try:
-            logger.debug(f"Fetching details for VM {vm_name} in subscription {subscription_id}, resource group {resource_group_name} with refresh_cache={refresh_cache}")
+            logger.debug(
+                f"Fetching details for VM {vm_name} in subscription {subscription_id}, resource group {resource_group_name} with refresh_cache={refresh_cache}"
+            )
             response = requests.get(endpoint, params=params)
             response.raise_for_status()
             vm_details = response.json()

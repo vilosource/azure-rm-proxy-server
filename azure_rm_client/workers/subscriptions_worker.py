@@ -6,10 +6,12 @@ from .worker_base import Worker
 
 logger = logging.getLogger(__name__)
 
+
 class SubscriptionsWorker(Worker):
     """
     Worker for handling operations related to subscriptions.
     """
+
     def __init__(self):
         super().__init__()
         self.credential = DefaultAzureCredential()

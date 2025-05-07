@@ -2,6 +2,7 @@ import yaml
 from typing import Any
 from .formatter_interface import FormatterInterface
 
+
 class YamlFormatter(FormatterInterface):
     """
     Formatter for YAML output.
