@@ -44,11 +44,11 @@ jobs:
           poetry run pip install pytest-cov
           poetry run pytest --cov=. --cov-report=xml
 
-      - name: Push to main (only on feature branches with successful tests)
+      - name: Merge  to develop  (only on feature branches with successful tests)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/') && success()
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'github-actions@github.com'
-          git checkout main
-          git merge ${{ github.ref_name }} --no-ff -m "Merge ${{ github.ref_name }} into main (via GitHub Actions)"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
+          git checkout develop 
+          git merge ${{ github.ref_name }} --no-ff -m "Merge ${{ github.ref_name }} into develop (via GitHub Actions)"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git develop
