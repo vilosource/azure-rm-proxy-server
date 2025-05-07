@@ -45,8 +45,8 @@ jobs:
           poetry run pip install pytest-cov
           poetry run pytest --cov=. --cov-report=xml
 
-      - name: Merge  to develop  (only on feature branches with successful tests)
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/') && success()
+      - name: Merge to develop (only on feature and fix branches with successful tests)
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/heads/feature/') || startsWith(github.ref, 'refs/heads/fix/')) && success()
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'github-actions@github.com'
