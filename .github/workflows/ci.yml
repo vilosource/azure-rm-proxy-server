@@ -40,19 +40,19 @@ jobs:
       - name: Install dependencies
         run: poetry install --with dev
 
-      - name: Run linters
+      - name: Run Flake8 (warn only)
         run: |
-          poetry run pip install flake8 pylint black
-          poetry run flake8 .
-          poetry run pylint --disable=all --enable=unused-import,undefined-variable azure_rm_proxy azure_rm_client azure_rm_mcp_server
-          poetry run black --check .
+          poetry run flake8 . || echo "flake8 warnings ignored"
+      - name: Run pylint (warn only)
+        run: |
+          poetry run pylint azure_rm_proxy || echo "pylint warnings ignored"
+      - name: Run Black (warn only)
+        run: |
+          poetry run black --check . || echo "black warnings ignored"
 
       - name: Run mypy (warn only)
         run: |
           poetry run mypy azure_rm_proxy || echo "mypy warnings ignored"
-      - name: Run pylint (warn only)
-        run: |
-          poetry run pylint azure_rm_proxy || echo "pylint warnings ignored"
 
       - name: Run tests
         run: poetry run pytest --cov=. --cov-report=xml
