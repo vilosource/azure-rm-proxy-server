@@ -70,13 +70,13 @@ class VirtualNetworkMixin(BaseAzureResourceMixin):
                     )
 
                     # Extract address space prefixes
-                    address_space = []
+                    address_space: List[str] = []
                     if hasattr(vnet, "address_space") and vnet.address_space:
                         if hasattr(vnet.address_space, "address_prefixes"):
                             address_space = vnet.address_space.address_prefixes or []
 
                     # Extract DNS servers
-                    dns_servers = []
+                    dns_servers: List[str] = []
                     if hasattr(vnet, "dhcp_options") and vnet.dhcp_options:
                         if hasattr(vnet.dhcp_options, "dns_servers"):
                             dns_servers = vnet.dhcp_options.dns_servers or []
@@ -135,13 +135,13 @@ class VirtualNetworkMixin(BaseAzureResourceMixin):
             vnet = network_client.virtual_networks.get(resource_group_name, vnet_name)
 
             # Extract address space prefixes
-            address_space = []
+            address_space: List[str] = []
             if hasattr(vnet, "address_space") and vnet.address_space:
                 if hasattr(vnet.address_space, "address_prefixes"):
                     address_space = vnet.address_space.address_prefixes or []
 
             # Extract DNS servers
-            dns_servers = []
+            dns_servers: List[str] = []
             if hasattr(vnet, "dhcp_options") and vnet.dhcp_options:
                 if hasattr(vnet.dhcp_options, "dns_servers"):
                     dns_servers = vnet.dhcp_options.dns_servers or []
@@ -182,7 +182,7 @@ class VirtualNetworkMixin(BaseAzureResourceMixin):
         Returns:
             List of SubnetModel objects
         """
-        subnets = []
+        subnets: List[SubnetModel] = []
 
         if not (hasattr(vnet, "subnets") and vnet.subnets):
             return subnets
@@ -261,7 +261,7 @@ class VirtualNetworkMixin(BaseAzureResourceMixin):
         Returns:
             List of VirtualNetworkPeeringModel objects
         """
-        peerings = []
+        peerings: List[VirtualNetworkPeeringModel] = []
 
         # Check if the virtual network has any peerings
         if not (hasattr(vnet, "virtual_network_peerings") and vnet.virtual_network_peerings):
@@ -329,8 +329,8 @@ class VirtualNetworkMixin(BaseAzureResourceMixin):
             )
 
             # Initialize structures to track peerings
-            peering_pairs = []
-            processed_pairs = set()  # To avoid duplicates
+            peering_pairs: List[VirtualNetworkPeeringPairModel] = []
+            processed_pairs: Set[str] = set()  # To avoid duplicates
 
             # For each VNet, get peering information directly
             for vnet_raw in all_vnets_raw:
@@ -350,6 +350,10 @@ class VirtualNetworkMixin(BaseAzureResourceMixin):
                     vnet_resource_group = self._extract_resource_group_from_id(
                         vnet_id, resource_group_name
                     )
+
+                    # Ensure vnet_resource_group is never None
+                    if vnet_resource_group is None:
+                        vnet_resource_group = "unknown"
 
                     self._log_debug(
                         f"Processing VNet: {vnet_name} in resource group {vnet_resource_group}"
@@ -486,6 +490,7 @@ class VirtualNetworkMixin(BaseAzureResourceMixin):
                                         for (
                                             remote_peering
                                         ) in remote_vnet_raw.virtual_network_peerings:
+                                            # Remote peering target ID can be None
                                             remote_peering_target_id = None
                                             if (
                                                 hasattr(remote_peering, "remote_virtual_network")
@@ -498,7 +503,8 @@ class VirtualNetworkMixin(BaseAzureResourceMixin):
                                                     remote_peering.remote_virtual_network.id
                                                 )
 
-                                            if remote_peering_target_id == vnet_id:
+                                            # Only proceed if we have a valid target ID that matches the local vnet ID
+                                            if remote_peering_target_id and remote_peering_target_id == vnet_id:
                                                 # Found the return peering
                                                 return_peering_data = {
                                                     "id": (

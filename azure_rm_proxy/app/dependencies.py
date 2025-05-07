@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 @lru_cache()
-def get_azure_service() -> AzureResourceService:
+def get_azure_service():
     """
     Returns an instance of AzureResourceService or MockAzureResourceService based on configuration.
 

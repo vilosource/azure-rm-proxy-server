@@ -15,13 +15,14 @@ logger = logging.getLogger(__name__)
 class NetworkMixin(BaseAzureResourceMixin):
     """Mixin for network-related operations."""
 
-    async def _fetch_network_interfaces(self, vm, network_client):
+    async def _fetch_network_interfaces(self, vm, network_client, vm_name=None):
         """
         Fetch network interfaces for a VM.
 
         Args:
             vm: Azure VM object
             network_client: Azure network client
+            vm_name: Optional name of the VM (added for compatibility with VirtualMachineMixin)
 
         Returns:
             List of NetworkInterfaceModel objects

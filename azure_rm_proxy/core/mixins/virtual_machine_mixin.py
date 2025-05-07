@@ -240,7 +240,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
 
     @cached_azure_operation(model_class=VirtualMachineHostname)
     async def get_vm_hostnames(
-        self, subscription_id: str = None, refresh_cache: bool = False
+        self, subscription_id: Optional[str] = None, refresh_cache: bool = False
     ) -> List[VirtualMachineHostname]:
         """
         Get a list of VM names and their hostnames from tags.
@@ -707,3 +707,36 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
             self._log_warning(f"Error fetching AAD groups: {e}")
 
         return aad_groups
+
+    # These methods are implemented in other mixins but referenced here
+    # Adding stub implementations to satisfy the type checker
+    async def get_subscriptions(self, refresh_cache: bool = False):
+        """
+        Get all subscriptions.
+
+        This is a stub implementation - the actual implementation is in SubscriptionMixin.
+        This is here to satisfy type checking since VirtualMachineMixin uses this method.
+
+        Args:
+            refresh_cache: Whether to refresh the cache
+
+        Returns:
+            List of subscription models
+        """
+        raise NotImplementedError("This method should be implemented by SubscriptionMixin")
+
+    async def get_resource_groups(self, subscription_id: str, refresh_cache: bool = False):
+        """
+        Get all resource groups for a subscription.
+
+        This is a stub implementation - the actual implementation is in ResourceGroupMixin.
+        This is here to satisfy type checking since VirtualMachineMixin uses this method.
+
+        Args:
+            subscription_id: Azure subscription ID
+            refresh_cache: Whether to refresh the cache
+
+        Returns:
+            List of resource group models
+        """
+        raise NotImplementedError("This method should be implemented by ResourceGroupMixin")

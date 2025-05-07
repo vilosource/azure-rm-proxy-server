@@ -1,12 +1,5 @@
 from azure.identity import DefaultAzureCredential
 import logging
-from fastapi import Depends
-
-from .azure_clients import AzureClientFactory
-from .azure_service import AzureResourceService
-from .caching import CacheFactory, CacheType  # Correct import for caching
-from .concurrency import ConcurrencyLimiter
-from ..app.config import settings
 
 logger = logging.getLogger(__name__)
 

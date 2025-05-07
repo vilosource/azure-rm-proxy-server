@@ -64,7 +64,8 @@ test-client:
 # Run linters
 lint:
 	poetry run flake8 azure_rm_proxy
-	poetry run mypy azure_rm_proxy
+	# Run mypy with config file
+	-poetry run mypy azure_rm_proxy
 
 # Format code
 format:

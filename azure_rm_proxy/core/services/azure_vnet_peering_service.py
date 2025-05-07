@@ -98,7 +98,9 @@ class AzureVNetPeeringService(PeeringServiceInterface):
         else:
             raise RuntimeError("Resource service unavailable for client creation")
 
-    def _extract_resource_group_from_id(self, resource_id: str, default_rg: str = None) -> str:
+    def _extract_resource_group_from_id(
+        self, resource_id: str, default_rg: Optional[str] = None
+    ) -> Optional[str]:
         """
         Extract resource group name from an Azure resource ID.
 
@@ -107,7 +109,7 @@ class AzureVNetPeeringService(PeeringServiceInterface):
             default_rg: Default resource group to return if extraction fails
 
         Returns:
-            Resource group name
+            Resource group name or None if extraction fails and no default is provided
         """
         parts = resource_id.split("/")
         if len(parts) >= 5 and parts[3].lower() == "resourcegroups":
@@ -258,7 +260,7 @@ class AzureVNetPeeringService(PeeringServiceInterface):
             List of peering pair models
         """
         # Initialize structures to track peerings
-        peering_pairs = []
+        peering_pairs: List[VirtualNetworkPeeringPairModel] = []
         processed_pairs: Set[str] = set()
 
         # For each VNet, get peering information
@@ -319,7 +321,7 @@ class AzureVNetPeeringService(PeeringServiceInterface):
         peering,
         vnet_id: str,
         vnet_name: str,
-        vnet_resource_group: str,
+        vnet_resource_group: Optional[str],
         subscription_id: str,
         processed_pairs: Set[str],
         peering_pairs: List[VirtualNetworkPeeringPairModel],
@@ -332,7 +334,7 @@ class AzureVNetPeeringService(PeeringServiceInterface):
             peering: The peering object
             vnet_id: ID of the VNet containing the peering
             vnet_name: Name of the VNet containing the peering
-            vnet_resource_group: Resource group of the VNet
+            vnet_resource_group: Resource group of the VNet (may be None)
             subscription_id: Subscription ID
             processed_pairs: Set of processed peering pair IDs
             peering_pairs: List to add peering pair models to
@@ -487,7 +489,7 @@ class AzureVNetPeeringService(PeeringServiceInterface):
             }
 
             # Find return peering (from remote to local)
-            return_peering_data = self._find_return_peering(remote_vnet_raw, vnet_id)
+            return_peering_data = self._find_return_peering(remote_vnet_raw, vnet_data["id"])
 
             # Create complete peering pair
             peering_pair = self._create_complete_peering_pair(
@@ -525,14 +527,7 @@ class AzureVNetPeeringService(PeeringServiceInterface):
 
             if remote_peering_target_id == local_vnet_id:
                 # Found the return peering
-                return {
-                    "id": peering.id if hasattr(peering, "id") else "",
-                    "name": peering.name if hasattr(peering, "name") else "",
-                    "remote_virtual_network_id": local_vnet_id,
-                    "peering_state": (
-                        peering.peering_state if hasattr(peering, "peering_state") else "Unknown"
-                    ),
-                }
+                return self._extract_peering_data(peering)
 
         return None
 
