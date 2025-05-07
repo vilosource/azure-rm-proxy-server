@@ -47,6 +47,13 @@ jobs:
           poetry run pylint --disable=all --enable=unused-import,undefined-variable azure_rm_proxy azure_rm_client azure_rm_mcp_server
           poetry run black --check .
 
+      - name: Run mypy (warn only)
+        run: |
+          poetry run mypy azure_rm_proxy || echo "mypy warnings ignored"
+      - name: Run pylint (warn only)
+        run: |
+          poetry run pylint azure_rm_proxy || echo "pylint warnings ignored"
+
       - name: Run tests
         run: poetry run pytest --cov=. --cov-report=xml
 
