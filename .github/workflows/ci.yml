@@ -27,6 +27,9 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
           
+      - name: Update lock file
+        run: poetry lock --no-update
+          
       - name: Install dependencies
         run: poetry install --no-interaction
           
@@ -52,6 +55,9 @@ jobs:
           version: 1.7.1
           virtualenvs-create: true
           virtualenvs-in-project: true
+      
+      - name: Update lock file
+        run: poetry lock --no-update
           
       - name: Install dependencies
         run: poetry install --no-interaction
@@ -81,6 +87,9 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+          
+      - name: Update lock file
+        run: poetry lock --no-update
 
       - name: Install dependencies
         run: poetry install --with dev
@@ -125,6 +134,9 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
 
+      - name: Update lock file
+        run: poetry lock --no-update
+
       - name: Install dependencies
         run: poetry install --with dev
 
@@ -165,6 +177,9 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
 
+      - name: Update lock file
+        run: poetry lock --no-update
+
       - name: Install dependencies
         run: poetry install --with dev
 
@@ -196,6 +211,9 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Update lock file
+        run: poetry lock --no-update
 
       - name: Install dependencies
         run: poetry install --with dev
@@ -243,6 +261,9 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+
+      - name: Update lock file
+        run: poetry lock --no-update
 
       - name: Install dependencies
         run: poetry install --with dev
