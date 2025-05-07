@@ -46,7 +46,7 @@ class MockAzureResourceService:
     def __init__(
         self,
         credential=None,  # Not used, but kept for API compatibility
-        cache: CacheStrategy = None,
+        cache: Optional[CacheStrategy] = None,
         limiter=None,  # Not used, but kept for API compatibility
         fixtures_dir: str = "./test_harnesses",
     ):
@@ -884,7 +884,9 @@ def get_mock_azure_service() -> MockAzureResourceService:
     Returns:
         A configured MockAzureResourceService instance
     """
-    return MockAzureResourceService(cache=InMemoryCache(), fixtures_dir="./test_harnesses")
+    # Create an instance of the cache strategy explicitly to prevent type errors
+    cache: CacheStrategy = InMemoryCache()
+    return MockAzureResourceService(cache=cache, fixtures_dir="./test_harnesses")
 
 
 # Standalone example usage

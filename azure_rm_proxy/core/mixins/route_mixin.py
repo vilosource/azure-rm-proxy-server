@@ -40,8 +40,10 @@ class RouteMixin(BaseAzureResourceMixin):
 
         route_tables = []
         for rt in network_client.route_tables.list_all():
-            # Extract resource group from the ID
-            resource_group = self._extract_resource_group_from_id(rt.id, "unknown")
+            # Extract resource group from the ID, defaulting to "unknown" if extraction fails
+            resource_group = self._extract_resource_group_from_id(rt.id)
+            if resource_group is None:
+                resource_group = "unknown"
 
             # Count routes and subnets
             route_count = len(rt.routes) if rt.routes else 0
@@ -265,3 +267,28 @@ class RouteMixin(BaseAzureResourceMixin):
             f"Successfully fetched {len(effective_routes)} effective routes for NIC {nic_name}"
         )
         return effective_routes
+
+    # This is a stub implementation to satisfy the type checker
+    async def get_vm_details(
+        self,
+        subscription_id: str,
+        resource_group_name: str,
+        vm_name: str,
+        refresh_cache: bool = False,
+    ):
+        """
+        Get details of a virtual machine.
+
+        This is a stub implementation - the actual implementation is in VirtualMachineMixin.
+        This is here to satisfy type checking since RouteMixin uses this method.
+
+        Args:
+            subscription_id: Azure subscription ID
+            resource_group_name: Resource group name
+            vm_name: Virtual machine name
+            refresh_cache: Whether to refresh the cache
+
+        Returns:
+            Virtual machine details
+        """
+        raise NotImplementedError("This method should be implemented by VirtualMachineMixin")

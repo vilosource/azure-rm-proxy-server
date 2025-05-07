@@ -16,7 +16,9 @@ T = TypeVar("T")
 R = TypeVar("R")
 
 
-def cached_azure_operation(model_class: Type[T] = None, cache_key_prefix: str = None):
+def cached_azure_operation(
+    model_class: Optional[Type[T]] = None, cache_key_prefix: Optional[str] = None
+):
     """
     Decorator for Azure operations with caching and error handling.
 
@@ -76,11 +78,11 @@ def cached_azure_operation(model_class: Type[T] = None, cache_key_prefix: str = 
                     self._log_info(f"Cached result for {func_name}")
 
                 return result
-            except ResourceNotFoundError as e:
+            except ResourceNotFoundError:
                 resource_type = func_name.replace("get_", "")
                 self._log_warning(f"{resource_type.capitalize()} not found")
                 raise
-            except ClientAuthenticationError as e:
+            except ClientAuthenticationError:
                 self._log_error(f"Authentication error in {func_name}")
                 raise
             except Exception as e:
@@ -212,7 +214,9 @@ class BaseAzureResourceMixin:
         # Already a model instance or other type
         return data
 
-    def _extract_resource_group_from_id(self, resource_id: str, default_rg: str = None) -> str:
+    def _extract_resource_group_from_id(
+        self, resource_id: str, default_rg: Optional[str] = None
+    ) -> Optional[str]:
         """
         Extract resource group name from an Azure resource ID.
 
@@ -221,7 +225,7 @@ class BaseAzureResourceMixin:
             default_rg: Default resource group to return if extraction fails
 
         Returns:
-            Resource group name
+            Resource group name or None if extraction fails and no default is provided
         """
         parts = resource_id.split("/")
         if len(parts) >= 5 and parts[3].lower() == "resourcegroups":

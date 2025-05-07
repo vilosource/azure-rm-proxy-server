@@ -172,6 +172,7 @@ class VirtualMachineDetail(VirtualMachineModel):
     effective_nsg_rules: List[NsgRuleModel]
     effective_routes: List[RouteModel]
     aad_groups: List[AADGroupModel]
+    hostname: Optional[str] = None
 
 
 class VirtualMachineWithContext(VirtualMachineModel):

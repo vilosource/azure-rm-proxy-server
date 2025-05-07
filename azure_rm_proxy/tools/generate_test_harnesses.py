@@ -146,7 +146,8 @@ class TestHarnessGenerator:
         self.limiter = ConcurrencyLimiter(max_concurrent=max_concurrency)
 
         # Create Azure service
-        self.azure_service = AzureResourceService(self.credentials, InMemoryCache(), self.limiter)
+        cache = InMemoryCache()
+        self.azure_service = AzureResourceService(self.credentials, cache, self.limiter)
 
         # Generate timestamp for filenames
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")

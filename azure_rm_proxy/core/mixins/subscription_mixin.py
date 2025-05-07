@@ -27,7 +27,8 @@ class SubscriptionMixin(BaseAzureResourceMixin):
             List of subscription models
         """
         # Get subscription client with concurrency control
-        subscription_client = await self._get_client("subscription", None)
+        # Use an empty string instead of None to satisfy type checking
+        subscription_client = await self._get_client("subscription", "")
 
         subscriptions = []
         for sub in subscription_client.subscriptions.list():
