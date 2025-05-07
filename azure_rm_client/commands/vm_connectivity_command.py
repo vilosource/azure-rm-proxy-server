@@ -1,6 +1,7 @@
 """
 Command to check network connectivity between Azure VMs.
 """
+
 import os
 import json
 import logging
@@ -14,40 +15,29 @@ from azure_rm_network_tool.vm_connectivity import parse_vm_data, build_graph, ch
 @CommandRegistry.register
 class VMConnectivityCommand(BaseCommand):
     """Command to check network connectivity between Azure VMs."""
-    
+
     name = "vm-connectivity"
     help = "Check network connectivity between Azure VMs"
-    
+
     def setup_parser(self, parser):
         """Set up the argument parser."""
+        parser.add_argument("-s", "--source-vm", required=True, help="Source VM name")
+        parser.add_argument("-d", "--destination-vm", required=True, help="Destination VM name")
         parser.add_argument(
-            "-s", "--source-vm", required=True, help="Source VM name"
-        )
-        parser.add_argument(
-            "-d", "--destination-vm", required=True, help="Destination VM name"
-        )
-        parser.add_argument(
-            "-f", 
-            "--folder", 
+            "-f",
+            "--folder",
             default="infra-data",
-            help="Path to infrastructure data folder (default: infra-data)"
+            help="Path to infrastructure data folder (default: infra-data)",
         )
         parser.add_argument(
-            "-g", 
-            "--gateway-ip", 
-            default="20.240.246.240", 
-            help="Virtual Network Gateway IP"
+            "-g", "--gateway-ip", default="20.240.246.240", help="Virtual Network Gateway IP"
         )
-        parser.add_argument(
-            "-r", 
-            "--routes-file", 
-            help="Path to gateway routes JSON file"
-        )
+        parser.add_argument("-r", "--routes-file", help="Path to gateway routes JSON file")
 
     def run(self, args):
         """Run the command."""
         self.logger = logging.getLogger(__name__)
-        
+
         # Load VM data
         vm_data = parse_vm_data(args.folder)
         if not vm_data:
@@ -68,17 +58,13 @@ class VMConnectivityCommand(BaseCommand):
             "source_vm": args.source_vm,
             "destination_vm": args.destination_vm,
             "reachable": reachable,
-            "path": []
+            "path": [],
         }
 
         if reachable:
             for hop, node in enumerate(path, 1):
                 ips = G.nodes[node]["ips"]
-                result["path"].append({
-                    "hop": hop,
-                    "node": node,
-                    "ips": ips
-                })
+                result["path"].append({"hop": hop, "node": node, "ips": ips})
 
         return result
 
@@ -95,5 +81,5 @@ class VMConnectivityCommand(BaseCommand):
         # Default gateway routes
         return [
             {"address_prefix": "172.20.4.0/22", "next_hop_type": "VirtualNetworkGateway"},
-            {"address_prefix": "10.0.0.0/8", "next_hop_type": "VirtualNetworkGateway"}
+            {"address_prefix": "10.0.0.0/8", "next_hop_type": "VirtualNetworkGateway"},
         ]

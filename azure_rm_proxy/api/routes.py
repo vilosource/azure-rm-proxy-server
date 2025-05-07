@@ -41,9 +41,7 @@ async def list_route_tables(
         refresh_cache: Whether to bypass cache and fetch fresh data
     """
     try:
-        return await azure_service.get_route_tables(
-            subscription_id, refresh_cache=refresh_cache
-        )
+        return await azure_service.get_route_tables(subscription_id, refresh_cache=refresh_cache)
     except ResourceNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ClientAuthenticationError:
@@ -157,9 +155,7 @@ async def get_nic_effective_routes(
     except ClientAuthenticationError:
         raise HTTPException(status_code=401, detail=TITLE_AUTH_FAILED)
     except Exception as e:
-        logger.error(
-            f"Error getting effective routes for network interface {nic_name}: {e}"
-        )
+        logger.error(f"Error getting effective routes for network interface {nic_name}: {e}")
         raise HTTPException(
             status_code=500,
             detail=f"An error occurred getting effective routes for network interface {nic_name}.",

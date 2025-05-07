@@ -77,7 +77,7 @@ class RouteTableModel(BaseModel):
 
 class ServiceEndpointModel(BaseModel):
     """Model for service endpoint information"""
-    
+
     service: str
     locations: List[str] = []
     provisioning_state: Optional[str] = None
@@ -85,7 +85,7 @@ class ServiceEndpointModel(BaseModel):
 
 class SubnetModel(BaseModel):
     """Model for subnet information"""
-    
+
     id: str
     name: str
     address_prefix: str
@@ -99,7 +99,7 @@ class SubnetModel(BaseModel):
 
 class VirtualNetworkPeeringModel(BaseModel):
     """Model for virtual network peering information"""
-    
+
     id: str
     name: str
     remote_virtual_network_id: str
@@ -113,32 +113,32 @@ class VirtualNetworkPeeringModel(BaseModel):
 
 class VirtualNetworkPeeringPairModel(BaseModel):
     """Model for a virtual network peering pair (both sides of connection)"""
-    
+
     peering_id: str  # Unique identifier for this peering pair
     vnet1_id: str
     vnet1_name: str
     vnet1_resource_group: str
     vnet1_subscription_id: str
     vnet1_to_vnet2_state: str  # Peering state from vnet1 to vnet2
-    
+
     vnet2_id: str
     vnet2_name: str
     vnet2_resource_group: str
     vnet2_subscription_id: str
     vnet2_to_vnet1_state: str  # Peering state from vnet2 to vnet1
-    
+
     allow_virtual_network_access: bool = True
     allow_forwarded_traffic: bool = False
     allow_gateway_transit: bool = False
     use_remote_gateways: bool = False
-    
+
     provisioning_state: str
     connected: bool  # True if peering is fully established in both directions
 
 
 class VirtualNetworkModel(BaseModel):
     """Model for virtual network information"""
-    
+
     id: str
     name: str
     location: str

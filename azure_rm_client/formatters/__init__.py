@@ -20,25 +20,27 @@ formatter_factory.register_formatter("yaml", YamlFormatter)
 # Default formatter
 DEFAULT_FORMATTER = "rich"
 
+
 def get_formatter_factory() -> FormatterFactory:
     """
     Get the formatter factory instance.
-    
+
     Returns:
         The formatter factory
     """
     return formatter_factory
 
+
 def get_formatter(format_type: str = None) -> FormatterInterface:
     """
     Get a formatter for the specified format type.
-    
+
     Args:
         format_type: The format type identifier (defaults to the DEFAULT_FORMATTER if None)
-        
+
     Returns:
         A formatter instance
-        
+
     Raises:
         ValueError: If the format type is not registered
     """
@@ -46,10 +48,11 @@ def get_formatter(format_type: str = None) -> FormatterInterface:
         format_type = DEFAULT_FORMATTER
     return formatter_factory.create_formatter(format_type)
 
+
 def get_available_formats() -> list:
     """
     Get a list of all available format types.
-    
+
     Returns:
         List of available format types
     """

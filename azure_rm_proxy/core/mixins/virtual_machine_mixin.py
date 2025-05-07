@@ -113,22 +113,16 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
         vm_model = self._create_vm_model_from_azure_vm(vm)
         self._log_debug(f"Fetched base VM data for {vm_name}")
 
-        network_interfaces = await self._fetch_network_interfaces(
-            vm, network_client, vm_name
-        )
+        network_interfaces = await self._fetch_network_interfaces(vm, network_client, vm_name)
 
         effective_nsg_rules, effective_routes, aad_groups = await asyncio.gather(
-            self._fetch_nsg_rules(
-                network_client, resource_group_name, network_interfaces
-            ),
+            self._fetch_nsg_rules(network_client, resource_group_name, network_interfaces),
             self._fetch_routes(network_client, resource_group_name, network_interfaces),
             self._fetch_aad_groups(subscription_id, vm),
         )
 
         # Fetch hostnames for the subscription
-        hostnames = await self.get_vm_hostnames(
-            subscription_id, refresh_cache=refresh_cache
-        )
+        hostnames = await self.get_vm_hostnames(subscription_id, refresh_cache=refresh_cache)
         hostname_map = {vm.vm_name: vm.hostname for vm in hostnames}
 
         # Add hostname to the VM detail
@@ -178,18 +172,14 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                             vm_dict["subscription_id"] = sub.id
                             vm_dict["subscription_name"] = sub.name
                             vm_dict["resource_group_name"] = rg.name
-                            all_vms.append(
-                                VirtualMachineWithContext.model_validate(vm_dict)
-                            )
+                            all_vms.append(VirtualMachineWithContext.model_validate(vm_dict))
                     except Exception as e:
                         self._log_warning(
                             f"Error fetching VMs for resource group {rg.name} in subscription {sub.id}: {e}"
                         )
                         continue
             except Exception as e:
-                self._log_warning(
-                    f"Error fetching resource groups for subscription {sub.id}: {e}"
-                )
+                self._log_warning(f"Error fetching resource groups for subscription {sub.id}: {e}")
                 continue
 
         self._log_info(f"Fetched {len(all_vms)} VMs across all subscriptions")
@@ -242,14 +232,10 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                         )
                         continue
             except Exception as e:
-                self._log_warning(
-                    f"Error fetching resource groups for subscription {sub.id}: {e}"
-                )
+                self._log_warning(f"Error fetching resource groups for subscription {sub.id}: {e}")
                 continue
 
-        self._log_warning(
-            f"VM {vm_name} not found in any subscription or resource group"
-        )
+        self._log_warning(f"VM {vm_name} not found in any subscription or resource group")
         raise ResourceNotFoundError(f"VM {vm_name} not found")
 
     @cached_azure_operation(model_class=VirtualMachineHostname)
@@ -300,15 +286,11 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                             if hasattr(vm, "tags") and vm.tags:
                                 hostname = vm.tags.get("hostname")
 
-                            vm_hostname = VirtualMachineHostname(
-                                vm_name=vm.name, hostname=hostname
-                            )
+                            vm_hostname = VirtualMachineHostname(vm_name=vm.name, hostname=hostname)
                             vms_in_rg.append(vm_hostname)
                             vm_hostnames.append(vm_hostname)
 
-                        self._log_debug(
-                            f"Found {len(vms_in_rg)} VMs in resource group {rg.name}"
-                        )
+                        self._log_debug(f"Found {len(vms_in_rg)} VMs in resource group {rg.name}")
                     except Exception as e:
                         self._log_warning(
                             f"Error fetching VMs for resource group {rg.name} in subscription {sub.id}: {str(e)}"
@@ -409,13 +391,9 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                 purpose = None
 
                 try:
-                    compute_client = await self._get_client(
-                        "compute", vm.subscription_id
-                    )
+                    compute_client = await self._get_client("compute", vm.subscription_id)
 
-                    azure_vm = compute_client.virtual_machines.get(
-                        vm.resource_group_name, vm.name
-                    )
+                    azure_vm = compute_client.virtual_machines.get(vm.resource_group_name, vm.name)
 
                     # Get OS disk size
                     if (
@@ -432,9 +410,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                         environment = azure_vm.tags.get("environment")
                         purpose = azure_vm.tags.get("purpose")
                 except Exception as e:
-                    self._log_warning(
-                        f"Error fetching OS disk size and tags for VM {vm.name}: {e}"
-                    )
+                    self._log_warning(f"Error fetching OS disk size and tags for VM {vm.name}: {e}")
 
                 # Create report entry
                 report_entry = VirtualMachineReport(
@@ -492,18 +468,14 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                 nic_resource_group = self._extract_resource_group_from_id(nic_id)
 
                 if not nic_resource_group:
-                    self._log_warning(
-                        f"Could not extract resource group from NIC ID: {nic_id}"
-                    )
+                    self._log_warning(f"Could not extract resource group from NIC ID: {nic_id}")
                     continue
 
                 self._log_debug(
                     f"Fetching details for NIC {nic_name} in resource group {nic_resource_group}"
                 )
 
-                nic = network_client.network_interfaces.get(
-                    nic_resource_group, nic_name
-                )
+                nic = network_client.network_interfaces.get(nic_resource_group, nic_name)
 
                 private_ips = []
                 public_ips = []
@@ -518,9 +490,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                         if ip_config.public_ip_address:
                             public_ip_id = ip_config.public_ip_address.id
                             public_ip_name = public_ip_id.split("/")[-1]
-                            public_ip_rg = self._extract_resource_group_from_id(
-                                public_ip_id
-                            )
+                            public_ip_rg = self._extract_resource_group_from_id(public_ip_id)
 
                             try:
                                 public_ip = network_client.public_ip_addresses.get(
@@ -529,9 +499,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                                 if public_ip.ip_address:
                                     public_ips.append(public_ip.ip_address)
                             except Exception as e:
-                                self._log_warning(
-                                    f"Error fetching public IP {public_ip_name}: {e}"
-                                )
+                                self._log_warning(f"Error fetching public IP {public_ip_name}: {e}")
 
                 nic_model = NetworkInterfaceModel(
                     id=nic.id,
@@ -542,15 +510,11 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                 network_interfaces.append(nic_model)
 
             except Exception as e:
-                self._log_warning(
-                    f"Error processing network interface for VM {vm_name}: {e}"
-                )
+                self._log_warning(f"Error processing network interface for VM {vm_name}: {e}")
 
         return network_interfaces
 
-    async def _fetch_nsg_rules(
-        self, network_client, resource_group_name, network_interfaces
-    ):
+    async def _fetch_nsg_rules(self, network_client, resource_group_name, network_interfaces):
         """
         Fetch effective NSG rules for network interfaces.
 
@@ -575,8 +539,10 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                 self._log_debug(f"Fetching NSG rules for NIC {nic_name}")
 
                 # Azure SDK expects a specific format for these calls
-                poller = network_client.network_interfaces.begin_get_effective_network_security_group(
-                    nic_resource_group, nic_name
+                poller = (
+                    network_client.network_interfaces.begin_get_effective_network_security_group(
+                        nic_resource_group, nic_name
+                    )
                 )
                 result = poller.result()
 
@@ -588,16 +554,11 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                         protocol = rule.protocol if hasattr(rule, "protocol") else "*"
 
                         # Extract direction
-                        direction = (
-                            rule.direction if hasattr(rule, "direction") else "Unknown"
-                        )
+                        direction = rule.direction if hasattr(rule, "direction") else "Unknown"
 
                         # Extract port range
                         port_range = "*"
-                        if (
-                            hasattr(rule, "destination_port_range")
-                            and rule.destination_port_range
-                        ):
+                        if hasattr(rule, "destination_port_range") and rule.destination_port_range:
                             port_range = rule.destination_port_range
 
                         # Extract access
@@ -617,9 +578,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
 
         return nsg_rules
 
-    async def _fetch_routes(
-        self, network_client, resource_group_name, network_interfaces
-    ):
+    async def _fetch_routes(self, network_client, resource_group_name, network_interfaces):
         """
         Fetch effective routes for network interfaces.
 
@@ -644,10 +603,8 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                 self._log_debug(f"Fetching routes for NIC {nic_name}")
 
                 # Azure SDK expects a specific format for these calls
-                poller = (
-                    network_client.network_interfaces.begin_get_effective_route_table(
-                        nic_resource_group, nic_name
-                    )
+                poller = network_client.network_interfaces.begin_get_effective_route_table(
+                    nic_resource_group, nic_name
                 )
                 result = poller.result()
 
@@ -669,9 +626,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                             address_prefix=address_prefix,
                             next_hop_type=route.next_hop_type,
                             next_hop_ip=next_hop_ip,
-                            route_origin=(
-                                route.source if hasattr(route, "source") else "Unknown"
-                            ),
+                            route_origin=(route.source if hasattr(route, "source") else "Unknown"),
                         )
                         all_routes.append(route_model)
 
@@ -722,9 +677,7 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                         hasattr(assignment, "principal_id")
                         and assignment.principal_id == vm.identity.principal_id
                     ):
-                        aad_group = AADGroupModel(
-                            id=assignment.id, display_name=assignment.name
-                        )
+                        aad_group = AADGroupModel(id=assignment.id, display_name=assignment.name)
                         aad_groups.append(aad_group)
 
             # If VM has user assigned identities
@@ -736,15 +689,11 @@ class VirtualMachineMixin(BaseAzureResourceMixin):
                     identity_id,
                     identity,
                 ) in vm.identity.user_assigned_identities.items():
-                    self._log_debug(
-                        f"Fetching AAD groups for user assigned identity {identity_id}"
-                    )
+                    self._log_debug(f"Fetching AAD groups for user assigned identity {identity_id}")
 
                     # List role assignments for each user assigned identity
                     try:
-                        for assignment in auth_client.role_assignments.list_for_scope(
-                            identity_id
-                        ):
+                        for assignment in auth_client.role_assignments.list_for_scope(identity_id):
                             aad_group = AADGroupModel(
                                 id=assignment.id, display_name=assignment.name
                             )

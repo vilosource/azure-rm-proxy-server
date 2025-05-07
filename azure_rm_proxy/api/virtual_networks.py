@@ -20,7 +20,9 @@ router = APIRouter(tags=["Virtual Networks"], prefix="/api/virtual-networks")
 async def list_virtual_networks(
     subscription_id: str,
     resource_group: Optional[str] = Query(None, description="Filter by resource group"),
-    refresh_cache: bool = Query(False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"),
+    refresh_cache: bool = Query(
+        False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"
+    ),
     azure_service: AzureResourceService = Depends(get_azure_service),
 ) -> List[VirtualNetworkModel]:
     """
@@ -51,7 +53,9 @@ async def list_virtual_networks(
 async def list_resource_group_virtual_networks(
     subscription_id: str,
     resource_group: str,
-    refresh_cache: bool = Query(False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"),
+    refresh_cache: bool = Query(
+        False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"
+    ),
     azure_service: AzureResourceService = Depends(get_azure_service),
 ) -> List[VirtualNetworkModel]:
     """
@@ -83,7 +87,9 @@ async def get_virtual_network(
     subscription_id: str,
     resource_group: str,
     vnet_name: str,
-    refresh_cache: bool = Query(False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"),
+    refresh_cache: bool = Query(
+        False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"
+    ),
     azure_service: AzureResourceService = Depends(get_azure_service),
 ) -> VirtualNetworkModel:
     """
@@ -98,7 +104,7 @@ async def get_virtual_network(
 
     Returns:
         Virtual network details
-        
+
     Raises:
         HTTPException: If virtual network not found
     """
@@ -108,11 +114,11 @@ async def get_virtual_network(
         vnet_name=vnet_name,
         refresh_cache=refresh_cache,
     )
-    
+
     if not vnet:
         raise HTTPException(
             status_code=HTTP_404_NOT_FOUND,
             detail=f"Virtual network {vnet_name} not found in resource group {resource_group}",
         )
-        
+
     return vnet

@@ -16,9 +16,7 @@ class ConcurrencyLimiter:
             max_concurrent: Maximum number of concurrent operations allowed.
         """
         self._sem = asyncio.BoundedSemaphore(max_concurrent)
-        logger.info(
-            f"ConcurrencyLimiter initialized with max_concurrent={max_concurrent}"
-        )
+        logger.info(f"ConcurrencyLimiter initialized with max_concurrent={max_concurrent}")
 
     async def __aenter__(self):
         """Acquire the semaphore when entering the context."""

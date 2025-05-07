@@ -114,9 +114,7 @@ class BaseAzureResourceMixin:
         """
         return ":".join([str(comp) for comp in key_components if comp])
 
-    def _set_cache_with_ttl(
-        self, key: str, value: Any, ttl: Optional[int] = None
-    ) -> None:
+    def _set_cache_with_ttl(self, key: str, value: Any, ttl: Optional[int] = None) -> None:
         """
         Set a value in the cache with optional TTL.
 
@@ -214,9 +212,7 @@ class BaseAzureResourceMixin:
         # Already a model instance or other type
         return data
 
-    def _extract_resource_group_from_id(
-        self, resource_id: str, default_rg: str = None
-    ) -> str:
+    def _extract_resource_group_from_id(self, resource_id: str, default_rg: str = None) -> str:
         """
         Extract resource group name from an Azure resource ID.
 
@@ -248,17 +244,11 @@ class BaseAzureResourceMixin:
         async with self.limiter:
             client = None
             if client_type == "compute":
-                client = AzureClientFactory.create_compute_client(
-                    subscription_id, self.credential
-                )
+                client = AzureClientFactory.create_compute_client(subscription_id, self.credential)
             elif client_type == "network":
-                client = AzureClientFactory.create_network_client(
-                    subscription_id, self.credential
-                )
+                client = AzureClientFactory.create_network_client(subscription_id, self.credential)
             elif client_type == "resource":
-                client = AzureClientFactory.create_resource_client(
-                    subscription_id, self.credential
-                )
+                client = AzureClientFactory.create_resource_client(subscription_id, self.credential)
             elif client_type == "subscription":
                 client = AzureClientFactory.create_subscription_client(self.credential)
             elif client_type == "authorization":
@@ -267,34 +257,42 @@ class BaseAzureResourceMixin:
                 )
             else:
                 raise ValueError(f"Unsupported client type: {client_type}")
-            
+
             # Add response logging policy if enabled
             if settings.log_level == "DEBUG" and hasattr(client, "_config"):
                 self._add_response_logging_policy(client)
-                
+
             return client
-            
+
     def _add_response_logging_policy(self, client):
         """
         Add a policy to log API responses.
-        
+
         Args:
             client: Azure client to add logging policy to
         """
         from azure.core.pipeline.policies import SansIOHTTPPolicy
-        
+
         # Create custom policy to log responses
         class ResponseLoggingPolicy(SansIOHTTPPolicy):
             def __init__(self, logger):
                 self.logger = logger
-                
+
             def on_response(self, request, response):
                 try:
                     # Only log on successful responses
                     if response.http_response.status_code < 400:
-                        service = request.http_request.url.split('/')[4] if len(request.http_request.url.split('/')) > 4 else "unknown"
-                        operation = request.http_request.url.split('/')[-2] if len(request.http_request.url.split('/')) > 2 else "unknown"
-                        
+                        service = (
+                            request.http_request.url.split("/")[4]
+                            if len(request.http_request.url.split("/")) > 4
+                            else "unknown"
+                        )
+                        operation = (
+                            request.http_request.url.split("/")[-2]
+                            if len(request.http_request.url.split("/")) > 2
+                            else "unknown"
+                        )
+
                         # Try to parse response as JSON
                         response_text = response.http_response.text()
                         try:
@@ -302,9 +300,13 @@ class BaseAzureResourceMixin:
                             # Truncate response if it's too large
                             if len(response_text) > 5000:
                                 truncated_json = {
-                                    "value": response_json.get("value", [])[:3] if isinstance(response_json.get("value"), list) else response_json.get("value"),
+                                    "value": (
+                                        response_json.get("value", [])[:3]
+                                        if isinstance(response_json.get("value"), list)
+                                        else response_json.get("value")
+                                    ),
                                     "truncated": True,
-                                    "total_size": len(response_text)
+                                    "total_size": len(response_text),
                                 }
                                 response_text = json.dumps(truncated_json)
                             else:
@@ -313,7 +315,7 @@ class BaseAzureResourceMixin:
                             # If not JSON or parsing fails, truncate the text
                             if len(response_text) > 1000:
                                 response_text = response_text[:1000] + "... [truncated]"
-                                
+
                         self.logger.debug(
                             f"Azure API Response: {service}/{operation} - "
                             f"Status: {response.http_response.status_code} - "
@@ -321,10 +323,10 @@ class BaseAzureResourceMixin:
                         )
                 except Exception as e:
                     self.logger.debug(f"Error logging response: {str(e)}")
-        
+
         # Create specialized logger for API responses
         api_logger = logging.getLogger("azure_rm_proxy.azure_api.responses")
-        
+
         # Add policy to client
         if hasattr(client, "_config") and hasattr(client._config, "http_logging_policy"):
             client._config.custom_hook_policy = ResponseLoggingPolicy(api_logger)
@@ -351,8 +353,7 @@ class BaseAzureResourceMixin:
         for field in model_fields:
             # Convert field_name to attribute_name (e.g., resource_group to resourceGroup)
             snake_to_camel = "".join(
-                word.capitalize() if i > 0 else word
-                for i, word in enumerate(field.split("_"))
+                word.capitalize() if i > 0 else word for i, word in enumerate(field.split("_"))
             )
 
             # Check various attribute naming patterns
@@ -372,11 +373,11 @@ class BaseAzureResourceMixin:
     def _generate_peering_pair_id(self, vnet1_id: str, vnet2_id: str) -> str:
         """
         Generate a consistent ID for a peering pair regardless of the order.
-        
+
         Args:
             vnet1_id: First VNet ID
             vnet2_id: Second VNet ID
-            
+
         Returns:
             A consistent ID for the peering pair
         """
@@ -385,23 +386,25 @@ class BaseAzureResourceMixin:
         # Create a hash of the two IDs to use as a unique identifier
         combined = f"{vnet_ids[0]}:{vnet_ids[1]}"
         return hashlib.md5(combined.encode()).hexdigest()
-        
-    async def _get_vnet_info_from_id(self, vnet_id: str, refresh_cache: bool = False) -> Optional[Tuple[str, str, str]]:
+
+    async def _get_vnet_info_from_id(
+        self, vnet_id: str, refresh_cache: bool = False
+    ) -> Optional[Tuple[str, str, str]]:
         """
         Extract subscription ID, resource group, and VNet name from a VNet ID.
-        
+
         Args:
             vnet_id: The full Azure resource ID of the virtual network
             refresh_cache: Whether to refresh the cache
-            
+
         Returns:
             Tuple of (subscription_id, resource_group, vnet_name) or None if parsing fails
         """
         try:
             # Azure resource IDs follow this pattern:
             # /subscriptions/{subscription_id}/resourceGroups/{resource_group}/providers/Microsoft.Network/virtualNetworks/{vnet_name}
-            parts = vnet_id.split('/')
-            if len(parts) >= 9 and parts[1] == 'subscriptions' and parts[3] == 'resourceGroups':
+            parts = vnet_id.split("/")
+            if len(parts) >= 9 and parts[1] == "subscriptions" and parts[3] == "resourceGroups":
                 subscription_id = parts[2]
                 resource_group = parts[4]
                 vnet_name = parts[8]

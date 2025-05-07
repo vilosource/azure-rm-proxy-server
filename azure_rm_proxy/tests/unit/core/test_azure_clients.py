@@ -31,9 +31,7 @@ class TestAzureClientFactory:
         mock_resource_client.return_value = mock_instance
 
         # Act
-        result = AzureClientFactory.create_resource_client(
-            subscription_id, mock_credential
-        )
+        result = AzureClientFactory.create_resource_client(subscription_id, mock_credential)
 
         # Assert
         assert result == mock_instance
@@ -49,9 +47,7 @@ class TestAzureClientFactory:
         mock_compute_client.return_value = mock_instance
 
         # Act
-        result = AzureClientFactory.create_compute_client(
-            subscription_id, mock_credential
-        )
+        result = AzureClientFactory.create_compute_client(subscription_id, mock_credential)
 
         # Assert
         assert result == mock_instance
@@ -67,9 +63,7 @@ class TestAzureClientFactory:
         mock_network_client.return_value = mock_instance
 
         # Act
-        result = AzureClientFactory.create_network_client(
-            subscription_id, mock_credential
-        )
+        result = AzureClientFactory.create_network_client(subscription_id, mock_credential)
 
         # Assert
         assert result == mock_instance
@@ -85,9 +79,7 @@ class TestAzureClientFactory:
         mock_auth_client.return_value = mock_instance
 
         # Act
-        result = AzureClientFactory.create_authorization_client(
-            subscription_id, mock_credential
-        )
+        result = AzureClientFactory.create_authorization_client(subscription_id, mock_credential)
 
         # Assert
         assert result == mock_instance

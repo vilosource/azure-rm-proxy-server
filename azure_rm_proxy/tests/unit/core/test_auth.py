@@ -22,9 +22,7 @@ class TestAuth:
 
         # Assert
         assert result == mock_credential
-        mock_credential.get_token.assert_called_once_with(
-            "https://management.azure.com/.default"
-        )
+        mock_credential.get_token.assert_called_once_with("https://management.azure.com/.default")
 
     @patch("azure_rm_proxy.core.auth.DefaultAzureCredential")
     def test_get_credentials_failure(self, mock_default_credential):
@@ -39,6 +37,4 @@ class TestAuth:
             get_credentials()
 
         assert "Authentication failed" in str(excinfo.value)
-        mock_credential.get_token.assert_called_once_with(
-            "https://management.azure.com/.default"
-        )
+        mock_credential.get_token.assert_called_once_with("https://management.azure.com/.default")

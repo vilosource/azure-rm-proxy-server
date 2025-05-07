@@ -1,5 +1,6 @@
 import os
 
+
 def create_files_and_directories():
     base_path = os.path.dirname(os.path.abspath(__file__))
 
@@ -36,6 +37,7 @@ def create_files_and_directories():
 
     # Create the structure
     create_structure(base_path, structure)
+
 
 if __name__ == "__main__":
     create_files_and_directories()

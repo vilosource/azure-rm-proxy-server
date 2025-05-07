@@ -125,9 +125,7 @@ class RouteMixin(BaseAzureResourceMixin):
             subscription_id=subscription_id,
         )
 
-        self._log_info(
-            f"Successfully fetched route table details for {route_table_name}"
-        )
+        self._log_info(f"Successfully fetched route table details for {route_table_name}")
         return route_table
 
     @cached_azure_operation(model_class=RouteModel)
@@ -191,9 +189,7 @@ class RouteMixin(BaseAzureResourceMixin):
 
         result = list(unique_routes.values())
 
-        self._log_info(
-            f"Successfully fetched {len(result)} effective routes for VM {vm_name}"
-        )
+        self._log_info(f"Successfully fetched {len(result)} effective routes for VM {vm_name}")
         return result
 
     @cached_azure_operation(model_class=RouteModel)
@@ -228,9 +224,7 @@ class RouteMixin(BaseAzureResourceMixin):
         )
 
         # Get the result from the poller
-        self._log_debug(
-            f"Waiting for result from effective route table poller for NIC {nic_name}"
-        )
+        self._log_debug(f"Waiting for result from effective route table poller for NIC {nic_name}")
         effective_routes_result = poller.result()
 
         # Process the routes if they exist
@@ -239,9 +233,7 @@ class RouteMixin(BaseAzureResourceMixin):
             and hasattr(effective_routes_result, "value")
             and effective_routes_result.value
         ):
-            self._log_debug(
-                f"Found {len(effective_routes_result.value)} routes for NIC {nic_name}"
-            )
+            self._log_debug(f"Found {len(effective_routes_result.value)} routes for NIC {nic_name}")
             for route in effective_routes_result.value:
                 # Handle address_prefix which might be a list or a string
                 address_prefix = route.address_prefix
@@ -257,17 +249,13 @@ class RouteMixin(BaseAzureResourceMixin):
                     next_hop_ip = route.next_hop_ip_address
                     if isinstance(next_hop_ip, list):
                         next_hop_ip = next_hop_ip[0] if next_hop_ip else None
-                        self._log_debug(
-                            f"Converted next_hop_ip from list to string: {next_hop_ip}"
-                        )
+                        self._log_debug(f"Converted next_hop_ip from list to string: {next_hop_ip}")
 
                 route_model = RouteModel(
                     address_prefix=address_prefix,
                     next_hop_type=route.next_hop_type,
                     next_hop_ip=next_hop_ip,
-                    route_origin=(
-                        route.source if hasattr(route, "source") else "Unknown"
-                    ),
+                    route_origin=(route.source if hasattr(route, "source") else "Unknown"),
                 )
                 effective_routes.append(route_model)
         else:

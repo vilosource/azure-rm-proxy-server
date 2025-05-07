@@ -15,12 +15,8 @@ logger = logging.getLogger(__name__)
 class SubscriptionMixin(BaseAzureResourceMixin):
     """Mixin for subscription-related operations."""
 
-    @cached_azure_operation(
-        model_class=SubscriptionModel, cache_key_prefix="subscriptions"
-    )
-    async def get_subscriptions(
-        self, refresh_cache: bool = False
-    ) -> List[SubscriptionModel]:
+    @cached_azure_operation(model_class=SubscriptionModel, cache_key_prefix="subscriptions")
+    async def get_subscriptions(self, refresh_cache: bool = False) -> List[SubscriptionModel]:
         """
         Get all subscriptions.
 

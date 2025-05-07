@@ -1,5 +1,5 @@
 # Azure RM Proxy Server Makefile
-.PHONY: help install run run-mock run-with-redis test lint format clean fixtures harnesses docs test-client test-core
+.PHONY: help install run run-mock run-with-redis test lint format format-check clean fixtures harnesses docs test-client test-core
 
 # Default target executed when no arguments are given to make.
 help:
@@ -17,6 +17,7 @@ help:
 	@echo "  make test-client      Run client tests"
 	@echo "  make lint             Run linters (flake8, mypy)"
 	@echo "  make format           Format code with Black"
+	@echo "  make format-check     Check code formatting with Black"
 	@echo "  make clean            Remove build artifacts and cache files"
 	@echo "  make fixtures         Generate test fixtures"
 	@echo "  make harnesses        Generate test harnesses"
@@ -67,7 +68,11 @@ lint:
 
 # Format code
 format:
-	poetry run black azure_rm_proxy
+	poetry run black .
+
+# Format check only (no changes)
+format-check:
+	poetry run black --check .
 
 # Clean build artifacts and cache files
 clean:

@@ -37,9 +37,7 @@ class RedisCache(BaseCache):
             port = parsed_url.port or 6379
             db = parsed_url.path.lstrip("/") or "0"
 
-            logger.info(
-                f"Initialized Redis cache at {host}:{port}/{db} with prefix '{prefix}'"
-            )
+            logger.info(f"Initialized Redis cache at {host}:{port}/{db} with prefix '{prefix}'")
         except Exception as e:
             logger.error(f"Failed to initialize Redis cache: {e}")
             raise
@@ -139,9 +137,7 @@ class RedisCache(BaseCache):
         try:
             return json.loads(value)
         except Exception as e:
-            logger.error(
-                f"Error deserializing cached value for key {prefixed_key}: {e}"
-            )
+            logger.error(f"Error deserializing cached value for key {prefixed_key}: {e}")
             return None
 
     def set(self, key: str, value: Any, ttl: Optional[int] = None) -> None:

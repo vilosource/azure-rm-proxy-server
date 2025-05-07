@@ -19,14 +19,16 @@ router = APIRouter(tags=["Virtual Network Peerings"], prefix="/api/vnet-peering-
 async def get_subscription_peering_report(
     subscription_id: str,
     resource_group: Optional[str] = Query(None, description="Filter by resource group"),
-    refresh_cache: bool = Query(False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"),
+    refresh_cache: bool = Query(
+        False, alias="refresh-cache", description="Whether to bypass cache and fetch fresh data"
+    ),
     azure_service: AzureResourceService = Depends(get_azure_service),
 ) -> List[VirtualNetworkPeeringPairModel]:
     """
     Get a report of all virtual network peerings in a subscription.
-    
+
     This report shows paired relationships between virtual networks, including status on both sides of the connection.
-    
+
     Args:
         subscription_id: Azure subscription ID
         resource_group: Optional resource group name to filter by

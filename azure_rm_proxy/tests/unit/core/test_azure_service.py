@@ -149,16 +149,12 @@ class TestAzureResourceService:
             # Assert
             assert len(result) == 2
             assert isinstance(result[0], ResourceGroupModel)
-            assert (
-                result[0].id == "/subscriptions/test-subscription/resourceGroups/rg-1"
-            )
+            assert result[0].id == "/subscriptions/test-subscription/resourceGroups/rg-1"
             assert result[0].name == "rg-1"
             assert result[0].location == "eastus"
             assert result[0].tags == {"env": "test"}
 
-            assert (
-                result[1].id == "/subscriptions/test-subscription/resourceGroups/rg-2"
-            )
+            assert result[1].id == "/subscriptions/test-subscription/resourceGroups/rg-2"
             assert result[1].name == "rg-2"
             assert result[1].location == "westus"
             assert result[1].tags is None
@@ -225,9 +221,7 @@ class TestAzureResourceService:
 
         try:
             # Act
-            result = await service.get_virtual_machines(
-                subscription_id, resource_group_name
-            )
+            result = await service.get_virtual_machines(subscription_id, resource_group_name)
 
             # Assert
             assert len(result) == 2
