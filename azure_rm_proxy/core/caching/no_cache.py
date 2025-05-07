@@ -48,9 +48,7 @@ class NoCache(BaseCache):
             value: The value to cache
             ttl: Time to live in seconds
         """
-        logger.debug(
-            f"No-op cache set_with_ttl for {key} with TTL {ttl} (does nothing)"
-        )
+        logger.debug(f"No-op cache set_with_ttl for {key} with TTL {ttl} (does nothing)")
 
     def delete(self, key: str) -> None:
         """

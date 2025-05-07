@@ -1,4 +1,8 @@
-# Azure RM Proxy Server
+<<<<<<< HEAD
+# Azure RM Proxy Server Tool
+=======
+# Azure RM Proxy Server 
+>>>>>>> fix/codeql-analysis
 
 A proxy server for efficiently accessing Azure resources with caching. This server reduces redundant Azure API calls by caching results and provides a simple interface for retrieving Azure resource information.
 

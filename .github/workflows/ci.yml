@@ -5,9 +5,11 @@ on:
     branches:
       - develop
       - feature/**
+      - release/**
+      - hotfix/**
+      - fix/**
   pull_request:
     branches:
-      - develop
       - main
 
 jobs:
@@ -36,14 +38,32 @@ jobs:
         run: poetry install --with dev
 
       - name: Run tests
-        run: poetry run pytest
-        # Re-enabled all tests for CI pipeline
-        
-      - name: Push to main (only on feature branches with successful tests)
-        if: success() && startsWith(github.ref, 'refs/heads/feature/')
+        # Ensure pytest-cov plugin is installed for coverage arguments
+        run: |
+          poetry run pip install pytest-cov
+          poetry run pytest --cov=. --cov-report=xml
+
+      - name: Merge to develop (only on feature and fix branches with successful tests)
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/heads/feature/') || startsWith(github.ref, 'refs/heads/fix/')) && success()
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'github-actions@github.com'
-          git checkout main
-          git merge ${{ github.ref_name }} --no-ff -m "Merge ${{ github.ref_name }} into main (via GitHub Actions)"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
+          git checkout develop 
+          git merge ${{ github.ref_name }} --no-ff -m "Merge ${{ github.ref_name }} into develop (via GitHub Actions)"
+          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git develop
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2

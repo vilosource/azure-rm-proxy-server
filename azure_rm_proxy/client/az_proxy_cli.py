@@ -41,18 +41,14 @@ async def fetch_data(url: str, params: Optional[Dict[str, Any]] = None) -> Any:
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:
-            console.print(
-                f"[red]Error: HTTP {e.response.status_code} - {e.response.text}"
-            )
+            console.print(f"[red]Error: HTTP {e.response.status_code} - {e.response.text}")
             sys.exit(1)
         except httpx.RequestError as e:
             console.print(f"[red]Error: {str(e)}")
             sys.exit(1)
 
 
-def display_subscriptions(
-    subscriptions: List[Dict[str, Any]], output_format: str
-) -> None:
+def display_subscriptions(subscriptions: List[Dict[str, Any]], output_format: str) -> None:
     """Display a list of subscriptions."""
     if output_format == "json":
         console.print(json.dumps(subscriptions, indent=2))
@@ -64,16 +60,12 @@ def display_subscriptions(
         table.add_column("State", style="magenta")
 
         for sub in subscriptions:
-            table.add_row(
-                sub["id"], sub["name"], sub.get("display_name", ""), sub["state"]
-            )
+            table.add_row(sub["id"], sub["name"], sub.get("display_name", ""), sub["state"])
 
         console.print(table)
 
 
-def display_resource_groups(
-    resource_groups: List[Dict[str, Any]], output_format: str
-) -> None:
+def display_resource_groups(resource_groups: List[Dict[str, Any]], output_format: str) -> None:
     """Display a list of resource groups."""
     if output_format == "json":
         console.print(json.dumps(resource_groups, indent=2))
@@ -87,9 +79,7 @@ def display_resource_groups(
         for rg in resource_groups:
             # Format tags as a string if present
             tags_str = (
-                json.dumps(rg.get("tags", {}), separators=(",", ":"))
-                if rg.get("tags")
-                else ""
+                json.dumps(rg.get("tags", {}), separators=(",", ":")) if rg.get("tags") else ""
             )
 
             table.add_row(rg["id"], rg["name"], rg["location"], tags_str)
@@ -140,7 +130,7 @@ def display_network_interfaces(interfaces: List[Dict[str, Any]]) -> None:
     """Display network interfaces for a VM."""
     if not interfaces:
         return
-        
+
     table = Table(title="Network Interfaces")
     table.add_column("Name", style="green")
     table.add_column("Private IPs", style="yellow")
@@ -161,7 +151,7 @@ def display_nsg_rules(rules: List[Dict[str, Any]]) -> None:
     """Display network security group rules for a VM."""
     if not rules:
         return
-        
+
     table = Table(title="Effective NSG Rules")
     table.add_column("Name", style="green")
     table.add_column("Direction", style="yellow")
@@ -186,7 +176,7 @@ def display_routes(routes: List[Dict[str, Any]]) -> None:
     """Display effective routes for a VM."""
     if not routes:
         return
-        
+
     table = Table(title="Effective Routes")
     table.add_column("Address Prefix", style="green")
     table.add_column("Next Hop Type", style="yellow")
@@ -209,7 +199,7 @@ def display_aad_groups(groups: List[Dict[str, Any]]) -> None:
     """Display AAD groups for a VM."""
     if not groups:
         return
-        
+
     table = Table(title="Azure AD Group Access")
     table.add_column("ID", style="green")
     table.add_column("Display Name", style="yellow")
@@ -226,22 +216,22 @@ def display_vm_details(vm: Dict[str, Any], output_format: str) -> None:
     if output_format == "json":
         console.print(json.dumps(vm, indent=2))
         return
-    
+
     # Display formatted table output
     display_basic_vm_info(vm)
-    
+
     # Display network interfaces
     interfaces = vm.get("network_interfaces", [])
     display_network_interfaces(interfaces)
-    
+
     # Display NSG rules
     nsg_rules = vm.get("effective_nsg_rules", [])
     display_nsg_rules(nsg_rules)
-    
+
     # Display routes
     routes = vm.get("effective_routes", [])
     display_routes(routes)
-    
+
     # Display AAD groups
     aad_groups = vm.get("aad_groups", [])
     display_aad_groups(aad_groups)
@@ -293,9 +283,7 @@ def main():
         default=DEFAULT_BASE_URL,
         help=f"Base URL of the Azure RM Proxy Server (default: {DEFAULT_BASE_URL})",
     )
-    parser.add_argument(
-        "--refresh-cache", action="store_true", help="Force refresh of cached data"
-    )
+    parser.add_argument("--refresh-cache", action="store_true", help="Force refresh of cached data")
     parser.add_argument(
         "--output",
         choices=["table", "json"],
@@ -315,28 +303,18 @@ def main():
     rg_parser.add_argument("--subscription-id", required=True, help=HELP_SUBSCRIPTION_ID)
 
     # List VMs
-    vm_parser = subparsers.add_parser(
-        "list-vms", help="List virtual machines in a resource group"
-    )
+    vm_parser = subparsers.add_parser("list-vms", help="List virtual machines in a resource group")
     vm_parser.add_argument("--subscription-id", required=True, help=HELP_SUBSCRIPTION_ID)
-    vm_parser.add_argument(
-        "--resource-group", required=True, help=HELP_RESOURCE_GROUP
-    )
+    vm_parser.add_argument("--resource-group", required=True, help=HELP_RESOURCE_GROUP)
 
     # Get VM details
     vm_details_parser = subparsers.add_parser(
         "get-vm-details",
         help="Get detailed information about a specific virtual machine",
     )
-    vm_details_parser.add_argument(
-        "--subscription-id", required=True, help=HELP_SUBSCRIPTION_ID
-    )
-    vm_details_parser.add_argument(
-        "--resource-group", required=True, help=HELP_RESOURCE_GROUP
-    )
-    vm_details_parser.add_argument(
-        "--vm-name", required=True, help=HELP_VM_NAME
-    )
+    vm_details_parser.add_argument("--subscription-id", required=True, help=HELP_SUBSCRIPTION_ID)
+    vm_details_parser.add_argument("--resource-group", required=True, help=HELP_RESOURCE_GROUP)
+    vm_details_parser.add_argument("--vm-name", required=True, help=HELP_VM_NAME)
 
     args = parser.parse_args()
 

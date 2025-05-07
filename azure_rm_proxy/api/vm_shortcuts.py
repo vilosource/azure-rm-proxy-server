@@ -63,9 +63,7 @@ async def get_vm_by_name(
             root_logger.setLevel(original_level)
             return result
         else:
-            return await azure_service.find_vm_by_name(
-                vm_name, refresh_cache=refresh_cache
-            )
+            return await azure_service.find_vm_by_name(vm_name, refresh_cache=refresh_cache)
     except ResourceNotFoundError:
         raise HTTPException(
             status_code=404,

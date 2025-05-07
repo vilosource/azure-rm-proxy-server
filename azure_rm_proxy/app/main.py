@@ -2,8 +2,24 @@ import logging
 import uvicorn
 import os
 import time
+import importlib
 from fastapi import FastAPI, Request
 from starlette.middleware.base import BaseHTTPMiddleware
+
+# First, check if the modules exist and import them (prevents errors if modules are missing)
+try:
+    from ..api import virtual_networks
+
+    has_virtual_networks = True
+except ImportError:
+    has_virtual_networks = False
+
+try:
+    from ..api import vnet_peering_report
+
+    has_vnet_peering_report = True
+except ImportError:
+    has_vnet_peering_report = False
 
 from ..api import (
     subscriptions,
@@ -25,19 +41,27 @@ logger = logging.getLogger(__name__)
 request_logger = logging.getLogger("azure_rm_proxy.requests")
 request_logger.setLevel(logging.INFO)
 
+# Create a dedicated Azure API response logger
+api_response_logger = logging.getLogger("azure_rm_proxy.azure_api.responses")
+api_response_logger.setLevel(logging.DEBUG if settings.log_level == "DEBUG" else logging.INFO)
+
 # Create logs directory if it doesn't exist
-logs_dir = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "logs"
-)
+logs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "logs")
 os.makedirs(logs_dir, exist_ok=True)
 
 # Set up the request log file handler
 request_log_file = os.path.join(logs_dir, "requests.log")
 request_file_handler = logging.FileHandler(request_log_file, mode="w")
-request_file_handler.setFormatter(
+request_file_handler.setFormatter(logging.Formatter("%(asctime)s - %(levelname)s - %(message)s"))
+request_logger.addHandler(request_file_handler)
+
+# Set up the Azure API response log file handler
+api_response_log_file = os.path.join(logs_dir, "azure_responses.log")
+api_response_file_handler = logging.FileHandler(api_response_log_file, mode="w")
+api_response_file_handler.setFormatter(
     logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 )
-request_logger.addHandler(request_file_handler)
+api_response_logger.addHandler(api_response_file_handler)
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
@@ -50,9 +74,7 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         url = str(request.url)
         client_host = request.client.host if request.client else "unknown"
 
-        request_logger.info(
-            f"Request {request_id} started: {method} {url} from {client_host}"
-        )
+        request_logger.info(f"Request {request_id} started: {method} {url} from {client_host}")
 
         # Process the request
         response = await call_next(request)
@@ -82,6 +104,15 @@ app.include_router(vm_shortcuts.router)
 app.include_router(vm_hostnames.router)
 app.include_router(vm_report.router)
 app.include_router(routes.router)
+
+# Only include virtual_networks router if module exists
+if has_virtual_networks:
+    app.include_router(virtual_networks.router)
+
+# Only include vnet_peering_report router if module exists
+if has_vnet_peering_report:
+    app.include_router(vnet_peering_report.router)
+
 app.include_router(root.router)  # Include the root router
 
 

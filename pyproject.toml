@@ -6,7 +6,8 @@ authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 packages = [
     {include = "azure_rm_proxy"},
-    {include = "azure_rm_client"}
+    {include = "azure_rm_client"},
+    {include = "azure_rm_network_tool"}
 ]
 
 [tool.poetry.dependencies]
@@ -28,6 +29,10 @@ gunicorn = "^23.0.0"
 requests = "^2.31.0"
 pyyaml = "^6.0.2"
 mcp = {extras = ["cli"], version = "^1.7.1"}
+networkx = "^3.2.1"
+pylint = "^3.3.7"
+flake8 = "^7.2.0"
+mypy = "^1.9.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "7.4.4"
@@ -41,7 +46,26 @@ dump-infra-data = "azure_rm_proxy.client.dump_infra_data:fetch_and_save_infra_da
 azure-rm-client = "azure_rm_client.cmd:main"
 azrmc = "azure_rm_client.cmd:main"
 mcp-server = "azure_rm_mcp_server.main:start"
+check-vm-connectivity = "azure_rm_network_tool.vm_connectivity:main"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

@@ -24,21 +24,23 @@ _worker_factory.register_worker("vm_hostnames", VMHostnamesWorker)
 _worker_factory.register_worker("vm_reports", VMReportsWorker)
 _worker_factory.register_worker("vm_shortcuts", VMShortcutsWorker)
 
+
 def get_worker(worker_type: str, **kwargs):
     """
     Get a worker instance for the specified worker type.
-    
+
     Args:
         worker_type: The worker type identifier
         **kwargs: Arguments to pass to the worker constructor
-            
+
     Returns:
         An instance of the worker for the specified worker type
-            
+
     Raises:
         ValueError: If the worker type is not registered
     """
     return _worker_factory.create_worker(worker_type, **kwargs)
+
 
 __all__ = [
     "AzureRMApiWorker",

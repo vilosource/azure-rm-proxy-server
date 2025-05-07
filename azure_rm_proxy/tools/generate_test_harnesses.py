@@ -146,9 +146,8 @@ class TestHarnessGenerator:
         self.limiter = ConcurrencyLimiter(max_concurrent=max_concurrency)
 
         # Create Azure service
-        self.azure_service = AzureResourceService(
-            self.credentials, InMemoryCache(), self.limiter
-        )
+        cache = InMemoryCache()
+        self.azure_service = AzureResourceService(self.credentials, cache, self.limiter)
 
         # Generate timestamp for filenames
         self.timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
@@ -168,9 +167,7 @@ class TestHarnessGenerator:
 
         filepath = os.path.join(self.output_dir, filename)
         with open(filepath, "w") as f:
-            json.dump(
-                data, f, indent=2, default=str
-            )  # default=str handles non-serializable types
+            json.dump(data, f, indent=2, default=str)  # default=str handles non-serializable types
 
         logger.info(f"Saved fixture: {filepath}")
         return filepath
@@ -185,16 +182,12 @@ class TestHarnessGenerator:
                 subscriptions = get_subscriptions_from_cli()
             else:
                 # Use the SDK-based approach
-                subscriptions = await self.azure_service.get_subscriptions(
-                    refresh_cache=True
-                )
+                subscriptions = await self.azure_service.get_subscriptions(refresh_cache=True)
 
             self.stats["subscriptions"] = len(subscriptions)
 
             # Save all subscriptions
-            self.save_json_fixture(
-                subscriptions, f"subscriptions_{self.timestamp}.json"
-            )
+            self.save_json_fixture(subscriptions, f"subscriptions_{self.timestamp}.json")
 
             return subscriptions
         except Exception as e:
@@ -290,11 +283,7 @@ class TestHarnessGenerator:
         # Process each subscription
         for subscription in subscriptions:
             # Handle both dictionary and Pydantic model for subscriptions
-            sub_id = (
-                subscription["id"]
-                if isinstance(subscription, dict)
-                else subscription.id
-            )
+            sub_id = subscription["id"] if isinstance(subscription, dict) else subscription.id
 
             # If resource group is provided, only process that group
             if self.resource_group:
@@ -366,9 +355,7 @@ async def main():
         default=None,
         help="Target specific resource group",
     )
-    parser.add_argument(
-        "--vm-name", type=str, default=None, help="Target specific virtual machine"
-    )
+    parser.add_argument("--vm-name", type=str, default=None, help="Target specific virtual machine")
     parser.add_argument(
         "--max-concurrency",
         type=int,
@@ -380,9 +367,7 @@ async def main():
         action="store_true",
         help="Skip fetching detailed VM information",
     )
-    parser.add_argument(
-        "--quiet", action="store_true", help="Reduce verbosity of output"
-    )
+    parser.add_argument("--quiet", action="store_true", help="Reduce verbosity of output")
     parser.add_argument(
         "--use-az-cli",
         action="store_true",
