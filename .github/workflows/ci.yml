@@ -8,6 +8,10 @@ on:
       - release/**
       - hotfix/**
       - main
+<<<<<<< HEAD
+=======
+      - fix/**
+>>>>>>> fix/codeql-analysis
   pull_request:
     branches:
       - develop
@@ -44,11 +48,35 @@ jobs:
           poetry run pip install pytest-cov
           poetry run pytest --cov=. --cov-report=xml
 
+<<<<<<< HEAD
       - name: Merge  to develop  (only on feature branches with successful tests)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/feature/') && success()
+=======
+      - name: Merge to develop (only on feature and fix branches with successful tests)
+        if: github.event_name == 'push' && (startsWith(github.ref, 'refs/heads/feature/') || startsWith(github.ref, 'refs/heads/fix/')) && success()
+>>>>>>> fix/codeql-analysis
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'github-actions@github.com'
           git checkout develop 
           git merge ${{ github.ref_name }} --no-ff -m "Merge ${{ github.ref_name }} into develop (via GitHub Actions)"
           git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git develop
+<<<<<<< HEAD
+=======
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: python
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+>>>>>>> fix/codeql-analysis
