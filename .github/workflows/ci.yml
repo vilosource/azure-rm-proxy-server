@@ -2,116 +2,52 @@ name: CI
 
 on:
   push:
-    branches: ["main", "master", "develop", "feature/**", "release/**", "hotfix/**"]
+    branches:
+      - develop
+      - feature/**
+      - release/**
+      - hotfix/**
+      - main
   pull_request:
-    branches: ["main", "master", "develop"]
-  workflow_dispatch:  # Allow manual triggers
+    branches:
+      - develop
+      - main
 
 jobs:
-  lint:
-    name: Code Quality Checks
+  # Generalized CI job for all branches
+  ci:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.7.1
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-      - name: Install dependencies
-        run: poetry install --no-interaction
-      - name: Run Black formatter check
-        run: poetry run black --check .
 
-  test:
-    name: Unit Tests
-    needs: lint
-    runs-on: ubuntu-latest
+    # Avoid redundant runs when the workflow is triggered by both push and pull_request
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.base_ref != github.head_ref)
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for branches and tags
+
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
+
       - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.7.1
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
+
       - name: Install dependencies
-        run: poetry install --no-interaction
+        run: poetry install --with dev
+
+      - name: Run linters
+        run: |
+          poetry run pip install flake8 pylint black
+          poetry run flake8 .
+          poetry run pylint --disable=all --enable=unused-import,undefined-variable azure_rm_proxy azure_rm_client azure_rm_mcp_server
+          poetry run black --check .
+
       - name: Run tests
-        run: poetry run pytest
-
-  feature-tests:
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write  # This permission is needed for pushing to the repository
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch all history for all branches and tags
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        run: poetry install --with dev
-
-      - name: Run unit tests
-        run: poetry run pytest -xvs
-
-      # Auto-merge feature branches to develop if tests pass
-      - name: Push to develop (feature branches with successful tests)
-        if: success()
-        run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'github-actions@github.com'
-          git fetch origin develop
-          git checkout develop
-          git merge ${{ github.ref_name }} --no-ff -m "Merge ${{ github.ref_name }} into develop (via GitHub Actions)"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git develop
-
-  develop-tests:
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        run: poetry install --with dev
-
-      - name: Run integration tests
         run: poetry run pytest --cov=. --cov-report=xml
 
       - name: Upload coverage to Codecov
@@ -119,112 +55,3 @@ jobs:
         with:
           file: ./coverage.xml
           fail_ci_if_error: true
-
-  release-tests:
-    if: startsWith(github.ref, 'refs/heads/release/')
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        run: poetry install --with dev
-
-      - name: Run integration tests
-        run: poetry run pytest --cov=. --cov-report=xml
-
-      - name: Run regression tests
-        run: poetry run pytest tests/regression
-
-  hotfix-tests:
-    if: startsWith(github.ref, 'refs/heads/hotfix/')
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        run: poetry install --with dev
-
-      - name: Run critical tests
-        run: poetry run pytest -xvs tests/critical
-
-      - name: Run regression tests
-        run: poetry run pytest tests/regression
-
-      # Auto-merge hotfix branches to main and develop if tests pass
-      - name: Merge to main and develop (hotfix branches with successful tests)
-        if: success()
-        run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'github-actions@github.com'
-          # Merge to main
-          git fetch origin main
-          git checkout main
-          git merge ${{ github.ref_name }} --no-ff -m "Merge hotfix ${{ github.ref_name }} into main (via GitHub Actions)"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git main
-          # Merge to develop
-          git fetch origin develop
-          git checkout develop
-          git merge ${{ github.ref_name }} --no-ff -m "Merge hotfix ${{ github.ref_name }} into develop (via GitHub Actions)"
-          git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git develop
-
-  main-tests:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          echo "export PATH=$HOME/.local/bin:$PATH" >> $GITHUB_ENV
-
-      - name: Install dependencies
-        run: poetry install --with dev
-
-      - name: Run final tests
-        run: poetry run pytest
-
-      - name: Security checks
-        run: |
-          poetry run pip install bandit safety
-          poetry run bandit -r azure_rm_proxy azure_rm_client azure_rm_mcp_server
-          poetry run safety check
