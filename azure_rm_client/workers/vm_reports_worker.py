@@ -2,10 +2,12 @@ from .worker_base import Worker
 import requests
 import logging
 
+
 class VMReportsWorker(Worker):
     """
     Worker for handling operations related to VM reports.
     """
+
     def generate_vm_report(self, refresh_cache: bool = False):
         """
         Generate a comprehensive report of all virtual machines across all subscriptions.

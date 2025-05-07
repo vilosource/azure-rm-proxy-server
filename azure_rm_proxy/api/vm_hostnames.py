@@ -23,9 +23,7 @@ async def list_vm_hostnames(
         refresh_cache: Whether to bypass cache and fetch fresh data
     """
     try:
-        return await azure_service.get_vm_hostnames(
-            subscription_id, refresh_cache=refresh_cache
-        )
+        return await azure_service.get_vm_hostnames(subscription_id, refresh_cache=refresh_cache)
     except ResourceNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except ClientAuthenticationError:

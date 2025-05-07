@@ -69,7 +69,7 @@ class TableFormatter(FormatterInterface):
         table = Table(show_header=True, header_style="bold")
         for key in data_list[0].keys():
             # Convert keys like snake_case or camelCase to Title Case for display
-            header = key.replace('_', ' ').title()
+            header = key.replace("_", " ").title()
             table.add_column(header)
 
         # Add rows from each dictionary
@@ -103,7 +103,7 @@ class TableFormatter(FormatterInterface):
         table.add_column("Value")
 
         for key, value in data.items():
-            formatted_key = key.replace('_', ' ').title()
+            formatted_key = key.replace("_", " ").title()
 
             if isinstance(value, dict):
                 value_str = f"[Dictionary: {len(value)} items]"

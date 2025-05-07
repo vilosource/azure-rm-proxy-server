@@ -14,7 +14,7 @@ import os
 import json
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 """
@@ -23,7 +23,6 @@ This module contains the GetAllCommand class, which is responsible for fetching 
 from the Azure API. It uses various worker classes to interact with different Azure services.
 The command can be executed with the specified output file name.
 """
-
 
 
 @CommandRegistry.register
@@ -42,7 +41,7 @@ class GetAllCommand(BaseCommand):
             "--output",
             required=False,
             default="infra-data",
-            help="Specify the output file to save the results (default: infra-data)."
+            help="Specify the output file to save the results (default: infra-data).",
         )
 
     def execute(self):
@@ -51,7 +50,7 @@ class GetAllCommand(BaseCommand):
         Save the results to the specified output directory, creating it if necessary.
         """
         logger.debug("Starting execution of GetAllCommand")
-        output_dir = self.args['output']  # Access output from the args dictionary
+        output_dir = self.args["output"]  # Access output from the args dictionary
         logger.debug(f"Output directory: {output_dir}")
         os.makedirs(output_dir, exist_ok=True)
 
@@ -103,9 +102,13 @@ class GetAllCommand(BaseCommand):
             subscription_dir = os.path.join(output_dir, subscription_id)
             os.makedirs(subscription_dir, exist_ok=True)
 
-            self._process_resource_groups(resource_groups, subscription_id, subscription_dir, virtual_machine_worker)
+            self._process_resource_groups(
+                resource_groups, subscription_id, subscription_dir, virtual_machine_worker
+            )
 
-    def _process_resource_groups(self, resource_groups, subscription_id, subscription_dir, virtual_machine_worker):
+    def _process_resource_groups(
+        self, resource_groups, subscription_id, subscription_dir, virtual_machine_worker
+    ):
         """
         Process each resource group to fetch virtual machines and their details.
 
@@ -127,11 +130,26 @@ class GetAllCommand(BaseCommand):
             virtual_machines = virtual_machine_worker.list_virtual_machines(
                 subscription_id=subscription_id, resource_group_name=resource_group_name
             )
-            logger.debug(f"Fetched virtual machines for resource group {resource_group_name}: {virtual_machines}")
+            logger.debug(
+                f"Fetched virtual machines for resource group {resource_group_name}: {virtual_machines}"
+            )
 
-            self._process_virtual_machines(virtual_machines, subscription_id, resource_group_name, resource_group_dir, virtual_machine_worker)
+            self._process_virtual_machines(
+                virtual_machines,
+                subscription_id,
+                resource_group_name,
+                resource_group_dir,
+                virtual_machine_worker,
+            )
 
-    def _process_virtual_machines(self, virtual_machines, subscription_id, resource_group_name, resource_group_dir, virtual_machine_worker):
+    def _process_virtual_machines(
+        self,
+        virtual_machines,
+        subscription_id,
+        resource_group_name,
+        resource_group_dir,
+        virtual_machine_worker,
+    ):
         """
         Process each virtual machine to fetch its details and save them to a file.
 
@@ -151,7 +169,7 @@ class GetAllCommand(BaseCommand):
             vm_details = virtual_machine_worker.get_virtual_machine_details(
                 subscription_id=subscription_id,
                 resource_group_name=resource_group_name,
-                vm_name=vm_name
+                vm_name=vm_name,
             )
             logger.debug(f"Fetched details for virtual machine {vm_name}")
 
@@ -193,6 +211,7 @@ class GetAllCommand(BaseCommand):
             output_dir (str): The directory to save the results.
         """
         from azure_rm_client.workers.route_tables_worker import RouteTablesWorker
+
         route_tables_worker = RouteTablesWorker()
 
         for subscription in subscriptions:
@@ -211,8 +230,12 @@ class GetAllCommand(BaseCommand):
 
             try:
                 # List all route tables in the subscription
-                route_tables = route_tables_worker.list_route_tables(subscription_id=subscription_id)
-                logger.debug(f"Found {len(route_tables)} route tables in subscription {subscription_id}")
+                route_tables = route_tables_worker.list_route_tables(
+                    subscription_id=subscription_id
+                )
+                logger.debug(
+                    f"Found {len(route_tables)} route tables in subscription {subscription_id}"
+                )
 
                 # Save the list of route tables
                 route_tables_list_file = os.path.join(route_tables_dir, "route_tables.json")
@@ -224,7 +247,7 @@ class GetAllCommand(BaseCommand):
                 for route_table in route_tables:
                     route_table_name = route_table.get("name")
                     resource_group = route_table.get("resource_group")
-                    
+
                     if not route_table_name or not resource_group:
                         logger.debug("Skipping route table with missing name or resource group")
                         continue
@@ -234,11 +257,13 @@ class GetAllCommand(BaseCommand):
                         route_table_details = route_tables_worker.get_route_table_details(
                             subscription_id=subscription_id,
                             resource_group_name=resource_group,
-                            route_table_name=route_table_name
+                            route_table_name=route_table_name,
                         )
-                        
+
                         # Save the route table details
-                        route_table_file = os.path.join(route_tables_dir, f"{route_table_name}.json")
+                        route_table_file = os.path.join(
+                            route_tables_dir, f"{route_table_name}.json"
+                        )
                         with open(route_table_file, "w") as file:
                             json.dump(route_table_details, file, indent=2)
                         logger.debug(f"Route table details saved to {route_table_file}")
@@ -246,8 +271,9 @@ class GetAllCommand(BaseCommand):
                     except Exception as e:
                         logger.warning(f"Error processing route table {route_table_name}: {e}")
                         continue
-            
-            except Exception as e:
-                logger.warning(f"Error fetching route tables for subscription {subscription_id}: {e}")
-                continue
 
+            except Exception as e:
+                logger.warning(
+                    f"Error fetching route tables for subscription {subscription_id}: {e}"
+                )
+                continue

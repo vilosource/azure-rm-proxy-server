@@ -49,14 +49,11 @@ def save_json_fixture(data: Any, filename: str, output_dir: str):
         if hasattr(data[0], "model_dump") if data else False:
             # For Pydantic v2
             data_to_save = [
-                item.model_dump() if hasattr(item, "model_dump") else item
-                for item in data
+                item.model_dump() if hasattr(item, "model_dump") else item for item in data
             ]
         elif hasattr(data[0], "dict") if data else False:
             # For older Pydantic versions
-            data_to_save = [
-                item.dict() if hasattr(item, "dict") else item for item in data
-            ]
+            data_to_save = [item.dict() if hasattr(item, "dict") else item for item in data]
         else:
             data_to_save = data
     else:
@@ -171,9 +168,7 @@ async def generate_fixtures(output_dir: str, subscription_id: Optional[str] = No
                                     output_dir,
                                 )
                         except Exception as e:
-                            logger.error(
-                                f"Error fetching details for VM {vm_name}: {e}"
-                            )
+                            logger.error(f"Error fetching details for VM {vm_name}: {e}")
             except Exception as e:
                 logger.error(f"Error fetching VMs for resource group {rg_name}: {e}")
 

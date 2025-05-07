@@ -62,9 +62,7 @@ class MockAzureResourceService:
         self.fixtures_dir = fixtures_dir
         self.cache = cache or InMemoryCache()
         self._load_fixtures()
-        logger.info(
-            f"MockAzureResourceService initialized with fixtures from {fixtures_dir}"
-        )
+        logger.info(f"MockAzureResourceService initialized with fixtures from {fixtures_dir}")
 
     def _load_fixtures(self):
         """Load all JSON fixtures from the fixtures directory."""
@@ -224,9 +222,7 @@ class MockAzureResourceService:
 
         return vm_dict
 
-    async def get_subscriptions(
-        self, refresh_cache: bool = False
-    ) -> List[SubscriptionModel]:
+    async def get_subscriptions(self, refresh_cache: bool = False) -> List[SubscriptionModel]:
         """
         Get all available subscriptions.
 
@@ -280,9 +276,7 @@ class MockAzureResourceService:
         if not refresh_cache:
             cached_data = self.cache.get(cache_key)
             if cached_data:
-                logger.debug(
-                    f"Cache hit for resource groups in subscription {subscription_id}"
-                )
+                logger.debug(f"Cache hit for resource groups in subscription {subscription_id}")
                 return cached_data
 
         logger.info(f"Fetching mock resource groups for subscription {subscription_id}")
@@ -336,17 +330,13 @@ class MockAzureResourceService:
         if not refresh_cache:
             cached_data = self.cache.get(cache_key)
             if cached_data:
-                logger.debug(
-                    f"Cache hit for VMs in resource group {resource_group_name}"
-                )
+                logger.debug(f"Cache hit for VMs in resource group {resource_group_name}")
                 return cached_data
 
         logger.info(
             f"Fetching mock VMs for resource group {resource_group_name} in subscription {subscription_id}"
         )
-        fixture = self._find_latest_fixture(
-            f"vms_{subscription_id}_{resource_group_name}"
-        )
+        fixture = self._find_latest_fixture(f"vms_{subscription_id}_{resource_group_name}")
 
         if fixture:
             # Convert to VirtualMachineModel objects
@@ -358,9 +348,7 @@ class MockAzureResourceService:
 
                 if isinstance(vm_data, dict):
                     # Ensure required fields exist
-                    if not all(
-                        k in vm_data for k in ["id", "name", "location", "vm_size"]
-                    ):
+                    if not all(k in vm_data for k in ["id", "name", "location", "vm_size"]):
                         # Add missing fields with default values
                         vm_data = {
                             "id": vm_data.get(
@@ -586,9 +574,7 @@ class MockAzureResourceService:
         if not refresh_cache:
             cached_data = self.cache.get(cache_key)
             if cached_data:
-                logger.debug(
-                    f"Cache hit for route tables in subscription {subscription_id}"
-                )
+                logger.debug(f"Cache hit for route tables in subscription {subscription_id}")
                 return cached_data
 
         logger.info(f"Fetching mock route tables for subscription {subscription_id}")
@@ -630,7 +616,9 @@ class MockAzureResourceService:
             route_table_name: Route table name
             refresh_cache: Whether to bypass cache and fetch fresh data
         """
-        cache_key = f"route_table_details:{subscription_id}:{resource_group_name}:{route_table_name}"
+        cache_key = (
+            f"route_table_details:{subscription_id}:{resource_group_name}:{route_table_name}"
+        )
 
         if not refresh_cache:
             cached_data = self.cache.get(cache_key)
@@ -706,9 +694,7 @@ class MockAzureResourceService:
             return vm_details["effective_routes"]
 
         # Fallback to a dedicated fixture if VM details are not available or don't contain routes
-        cache_key = (
-            f"vm_effective_routes:{subscription_id}:{resource_group_name}:{vm_name}"
-        )
+        cache_key = f"vm_effective_routes:{subscription_id}:{resource_group_name}:{vm_name}"
 
         if not refresh_cache:
             cached_data = self.cache.get(cache_key)
@@ -764,9 +750,7 @@ class MockAzureResourceService:
             nic_name: Network interface name
             refresh_cache: Whether to bypass cache and fetch fresh data
         """
-        cache_key = (
-            f"nic_effective_routes:{subscription_id}:{resource_group_name}:{nic_name}"
-        )
+        cache_key = f"nic_effective_routes:{subscription_id}:{resource_group_name}:{nic_name}"
 
         if not refresh_cache:
             cached_data = self.cache.get(cache_key)
@@ -882,14 +866,14 @@ def get_mock_azure_service() -> MockAzureResourceService:
 
     This can be used as a drop-in replacement for the real Azure service in tests
     and development environments. Usage example with FastAPI:
-    
+
     ```python
     from fastapi import Depends, APIRouter
     from ..tools.mock_azure_service import get_mock_azure_service
     from ..core.azure_service import AzureResourceService
-    
+
     router = APIRouter()
-    
+
     @router.get("/subscriptions")
     async def list_subscriptions(
         azure_service: AzureResourceService = Depends(get_mock_azure_service)
@@ -900,9 +884,7 @@ def get_mock_azure_service() -> MockAzureResourceService:
     Returns:
         A configured MockAzureResourceService instance
     """
-    return MockAzureResourceService(
-        cache=InMemoryCache(), fixtures_dir="./test_harnesses"
-    )
+    return MockAzureResourceService(cache=InMemoryCache(), fixtures_dir="./test_harnesses")
 
 
 # Standalone example usage

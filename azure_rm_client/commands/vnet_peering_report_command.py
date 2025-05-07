@@ -20,7 +20,7 @@ class VNetPeeringReportCommand(BaseCommand):
             name="vnet-peering-report",
             description="Get a report of virtual network peerings showing both sides of connections",
             aliases=["vnet-peerings", "peering-report"],
-            base_url=base_url
+            base_url=base_url,
         )
 
     def add_arguments(self, parser):
@@ -58,27 +58,27 @@ class VNetPeeringReportCommand(BaseCommand):
         """
         # Build API endpoint URL
         base_url = f"{args.base_url}/api/vnet-peering-report/subscriptions/{args.subscription}"
-        
+
         # Add optional parameters
         params = {"refresh-cache": args.refresh_cache}
         if args.resource_group:
             params["resource_group"] = args.resource_group
-            
+
         # Call the API
         response = await self.http_get(base_url, params=params)
-        
+
         # Format the data for better display
         result = self._format_peering_data(response)
-        
+
         # Add a summary of peering health
         result["summary"] = self._generate_summary(response)
-        
+
         return result
-    
+
     def execute(self) -> bool:
         """
         Execute the command synchronously by running the async version in a loop.
-        
+
         Returns:
             True if the command executed successfully, False otherwise
         """
@@ -86,7 +86,7 @@ class VNetPeeringReportCommand(BaseCommand):
             # Create event loop and run the async method
             loop = asyncio.get_event_loop()
             result = loop.run_until_complete(self.execute_async(self.args))
-            
+
             # Format and print the result
             output = self.format_output(result)
             print(output)
@@ -94,14 +94,14 @@ class VNetPeeringReportCommand(BaseCommand):
         except Exception as e:
             logger.error(f"Failed to execute command: {e}")
             return False
-        
+
     def _format_peering_data(self, peerings: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Format peering data for better display.
-        
+
         Args:
             peerings: List of peering data from API
-            
+
         Returns:
             Formatted data
         """
@@ -109,11 +109,13 @@ class VNetPeeringReportCommand(BaseCommand):
             "peerings": [],
             "total_count": len(peerings),
         }
-        
+
         for peering in peerings:
             formatted_peering = {
                 "peering_id": peering.get("peering_id"),
-                "connection_status": "Connected" if peering.get("connected") else "Partial/Disconnected",
+                "connection_status": (
+                    "Connected" if peering.get("connected") else "Partial/Disconnected"
+                ),
                 "vnet1": {
                     "name": peering.get("vnet1_name"),
                     "resource_group": peering.get("vnet1_resource_group"),
@@ -132,25 +134,25 @@ class VNetPeeringReportCommand(BaseCommand):
                     "allow_gateway_transit": peering.get("allow_gateway_transit"),
                     "use_remote_gateways": peering.get("use_remote_gateways"),
                 },
-                "provisioning_state": peering.get("provisioning_state")
+                "provisioning_state": peering.get("provisioning_state"),
             }
             result["peerings"].append(formatted_peering)
-            
+
         return result
-        
+
     def _generate_summary(self, peerings: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
         Generate a summary of peering health.
-        
+
         Args:
             peerings: List of peering data from API
-            
+
         Returns:
             Summary data
         """
         total = len(peerings)
         connected = sum(1 for p in peerings if p.get("connected", False))
-        
+
         return {
             "total_peering_connections": total,
             "connected_count": connected,

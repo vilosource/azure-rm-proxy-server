@@ -8,6 +8,7 @@ from azure_rm_client.workers.subscriptions_worker import SubscriptionsWorker
 
 logger = logging.getLogger(__name__)
 
+
 @CommandRegistry.register
 class SubscriptionsCommand(BaseCommand):
     """
@@ -32,26 +33,26 @@ class SubscriptionsCommand(BaseCommand):
             "--format",
             default="table",
             choices=["table", "json", "yaml"],
-            help="Output format (default: table)"
+            help="Output format (default: table)",
         )
         subparser.add_argument(
             "--refresh-cache",
             action="store_true",
-            help="Bypass cache and fetch fresh data (default: False)"
+            help="Bypass cache and fetch fresh data (default: False)",
         )
 
     @classmethod
     def get_param_mapping(cls) -> Dict[str, str]:
-        return {
-            'format': 'output_format'
-        }
+        return {"format": "output_format"}
 
     def execute(self) -> bool:
         logger.debug("Executing SubscriptionsCommand with output_format=%s", self.output_format)
 
         # Use the SubscriptionsWorker to fetch subscriptions
         worker = SubscriptionsWorker()
-        refresh_cache = self.args.get('refresh_cache', False) if isinstance(self.args, dict) else False
+        refresh_cache = (
+            self.args.get("refresh_cache", False) if isinstance(self.args, dict) else False
+        )
         try:
             subscriptions = worker.execute(refresh_cache=refresh_cache)
             logger.debug("Fetched %d subscriptions", len(subscriptions))

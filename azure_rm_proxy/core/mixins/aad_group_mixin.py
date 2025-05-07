@@ -29,9 +29,7 @@ class AADGroupMixin(BaseAzureResourceMixin):
 
         try:
             # Get authorization client with the new helper method
-            authorization_client = await self._get_client(
-                "authorization", subscription_id
-            )
+            authorization_client = await self._get_client("authorization", subscription_id)
             role_assignments = []
 
             self._log_debug(f"Fetching role assignments for VM: {vm.id}")
@@ -58,10 +56,8 @@ class AADGroupMixin(BaseAzureResourceMixin):
                             parts = role_def_id.split("/")
                             if len(parts) >= 6:
                                 # Get the role definition with more specific details
-                                role_def = (
-                                    authorization_client.role_definitions.get_by_id(
-                                        role_def_id
-                                    )
+                                role_def = authorization_client.role_definitions.get_by_id(
+                                    role_def_id
                                 )
                                 role_name = (
                                     role_def.role_name
@@ -110,9 +106,7 @@ class AADGroupMixin(BaseAzureResourceMixin):
                         response = graph_client.get(f"/groups/{group.id}")
                         if response.status_code == 200:
                             group_data = response.json()
-                            display_name = group_data.get(
-                                "displayName", group.display_name
-                            )
+                            display_name = group_data.get("displayName", group.display_name)
                             description = group_data.get("description", "")
 
                             if description:
@@ -126,9 +120,7 @@ class AADGroupMixin(BaseAzureResourceMixin):
                                     AADGroupModel,
                                 )
                             )
-                            self._log_debug(
-                                f"Enhanced group name with Graph API: {full_name}"
-                            )
+                            self._log_debug(f"Enhanced group name with Graph API: {full_name}")
                         else:
                             updated_groups.append(group)
                     except Exception as graph_error:
@@ -148,9 +140,7 @@ class AADGroupMixin(BaseAzureResourceMixin):
                 self._log_warning(f"Error using Microsoft Graph client: {str(e)}")
 
         except ClientAuthenticationError as e:
-            self._log_warning(
-                f"Authentication error fetching role assignments: {str(e)}"
-            )
+            self._log_warning(f"Authentication error fetching role assignments: {str(e)}")
         except Exception as e:
             self._log_warning(f"Could not fetch role assignments: {str(e)}")
 

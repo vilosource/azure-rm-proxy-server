@@ -1,9 +1,11 @@
 from .worker_base import Worker
 
+
 class VMHostnamesWorker(Worker):
     """
     Worker for handling operations related to VM hostnames.
     """
+
     def list_vm_hostnames(self, subscription_id: str = None, refresh_cache: bool = False):
         """
         List VM names and their hostnames from tags.
@@ -24,7 +26,9 @@ class VMHostnamesWorker(Worker):
         params = {"subscription-id": subscription_id, "refresh-cache": refresh_cache}
 
         try:
-            logger.debug(f"Fetching VM hostnames with subscription_id={subscription_id} and refresh_cache={refresh_cache}")
+            logger.debug(
+                f"Fetching VM hostnames with subscription_id={subscription_id} and refresh_cache={refresh_cache}"
+            )
             response = requests.get(endpoint, params=params)
             response.raise_for_status()
             vm_hostnames = response.json()
@@ -46,7 +50,9 @@ class VMHostnamesWorker(Worker):
         import os
         import json
 
-        vm_hostnames = self.list_vm_hostnames(subscription_id=subscription_id, refresh_cache=refresh_cache)
+        vm_hostnames = self.list_vm_hostnames(
+            subscription_id=subscription_id, refresh_cache=refresh_cache
+        )
 
         output_file = os.path.join(output_dir, "vm-name_hostname_list.json")
         with open(output_file, "w") as file:

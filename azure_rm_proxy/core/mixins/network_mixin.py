@@ -32,12 +32,16 @@ class NetworkMixin(BaseAzureResourceMixin):
             and vm.network_profile
             and hasattr(vm.network_profile, "network_interfaces")
         ):
-            self._log_warning(f"VM {vm.name if hasattr(vm, 'name') else 'unknown'} does not have network interfaces defined")
+            self._log_warning(
+                f"VM {vm.name if hasattr(vm, 'name') else 'unknown'} does not have network interfaces defined"
+            )
             return network_interfaces
 
         for nic_ref in vm.network_profile.network_interfaces:
             if not nic_ref or not hasattr(nic_ref, "id") or not nic_ref.id:
-                self._log_warning(f"NIC reference does not have an ID for VM {vm.name if hasattr(vm, 'name') else 'unknown'}")
+                self._log_warning(
+                    f"NIC reference does not have an ID for VM {vm.name if hasattr(vm, 'name') else 'unknown'}"
+                )
                 continue
 
             nic_id = nic_ref.id
@@ -53,9 +57,7 @@ class NetworkMixin(BaseAzureResourceMixin):
             try:
                 nic = network_client.network_interfaces.get(nic_rg_name, nic_name)
                 private_ips = self._get_private_ips(nic)
-                public_ips = await self._get_public_ips(
-                    nic, network_client, nic_rg_name
-                )
+                public_ips = await self._get_public_ips(nic, network_client, nic_rg_name)
 
                 # Use _convert_to_model for consistent model creation
                 network_interfaces.append(
@@ -91,8 +93,7 @@ class NetworkMixin(BaseAzureResourceMixin):
             private_ips = [
                 ip_config.private_ip_address
                 for ip_config in nic.ip_configurations
-                if hasattr(ip_config, "private_ip_address")
-                and ip_config.private_ip_address
+                if hasattr(ip_config, "private_ip_address") and ip_config.private_ip_address
             ]
         return private_ips
 
@@ -113,9 +114,7 @@ class NetworkMixin(BaseAzureResourceMixin):
             return public_ips
 
         for ip_config in nic.ip_configurations:
-            if not (
-                hasattr(ip_config, "public_ip_address") and ip_config.public_ip_address
-            ):
+            if not (hasattr(ip_config, "public_ip_address") and ip_config.public_ip_address):
                 continue
 
             try:
@@ -123,9 +122,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                     hasattr(ip_config.public_ip_address, "name")
                     and ip_config.public_ip_address.name
                 ):
-                    self._log_debug(
-                        f"Fetching public IP {ip_config.public_ip_address.name}"
-                    )
+                    self._log_debug(f"Fetching public IP {ip_config.public_ip_address.name}")
                     public_ip = network_client.public_ip_addresses.get(
                         nic_rg_name, ip_config.public_ip_address.name
                     )
@@ -226,34 +223,34 @@ class NetworkMixin(BaseAzureResourceMixin):
     async def _fetch_rules_directly(self, network_client, nic_rg_name, nic_name):
         """
         Try to fetch NSG rules directly from the network interface.
-        
+
         Args:
             network_client: Azure network client
             nic_rg_name: NIC's resource group name
             nic_name: Network interface name
-        
+
         Returns:
             List of NSG rules if successful, empty list otherwise
         """
         rules = []
         try:
             self._log_debug("Trying direct method to get NSG rules")
-            
+
             # Look for the NSG attached to the NIC
             nic = network_client.network_interfaces.get(nic_rg_name, nic_name)
 
             # Process only if the NIC has a network security group
             if not (hasattr(nic, "network_security_group") and nic.network_security_group):
                 return []
-                
+
             nsg_id = nic.network_security_group.id
             if not nsg_id:
                 return []
-                
+
             nsg_parts = nsg_id.split("/")
             if len(nsg_parts) < 9:
                 return []
-                
+
             nsg_rg = nsg_parts[4]
             nsg_name = nsg_parts[8]
 
@@ -262,11 +259,10 @@ class NetworkMixin(BaseAzureResourceMixin):
 
             if not (nsg and hasattr(nsg, "security_rules") and nsg.security_rules):
                 return []
-                
+
             for rule in nsg.security_rules:
                 port_range = (
-                    rule.destination_port_range
-                    or ",".join(rule.destination_port_ranges)
+                    rule.destination_port_range or ",".join(rule.destination_port_ranges)
                     if hasattr(rule, "destination_port_ranges")
                     else "*"
                 )
@@ -283,22 +279,22 @@ class NetworkMixin(BaseAzureResourceMixin):
                         NsgRuleModel,
                     )
                 )
-                
+
             self._log_debug(f"Fetched {len(rules)} NSG rules using direct method")
         except Exception as direct_error:
             self._log_debug(f"Direct NSG rule fetch failed: {str(direct_error)}")
-            
+
         return rules
-        
+
     async def _fetch_rules_via_api(self, network_client, nic_rg_name, nic_name):
         """
         Try to fetch NSG rules using the effective network security group API.
-        
+
         Args:
             network_client: Azure network client
             nic_rg_name: NIC's resource group name
             nic_name: Network interface name
-        
+
         Returns:
             List of NSG rules if successful, empty list otherwise
         """
@@ -306,9 +302,11 @@ class NetworkMixin(BaseAzureResourceMixin):
         try:
             self._log_debug("Trying effective NSG rules API")
 
-            if not hasattr(network_client.network_interfaces, "begin_get_effective_network_security_group"):
+            if not hasattr(
+                network_client.network_interfaces, "begin_get_effective_network_security_group"
+            ):
                 return []
-                
+
             poller = network_client.network_interfaces.begin_get_effective_network_security_group(
                 nic_rg_name, nic_name
             )
@@ -319,33 +317,21 @@ class NetworkMixin(BaseAzureResourceMixin):
             # Process the result if available
             if not (result and hasattr(result, "effective_security_rules")):
                 return []
-                
+
             for rule in result.effective_security_rules:
                 port_range = self._get_port_range(rule)
                 rules.append(
                     self._convert_to_model(
                         {
-                            "name": (
-                                rule.name
-                                if hasattr(rule, "name")
-                                else "Unnamed"
-                            ),
+                            "name": (rule.name if hasattr(rule, "name") else "Unnamed"),
                             "direction": (
-                                str(rule.direction)
-                                if hasattr(rule, "direction")
-                                else "Unknown"
+                                str(rule.direction) if hasattr(rule, "direction") else "Unknown"
                             ),
                             "protocol": (
-                                str(rule.protocol)
-                                if hasattr(rule, "protocol")
-                                else "Unknown"
+                                str(rule.protocol) if hasattr(rule, "protocol") else "Unknown"
                             ),
                             "port_range": port_range,
-                            "access": (
-                                str(rule.access)
-                                if hasattr(rule, "access")
-                                else "Unknown"
-                            ),
+                            "access": (str(rule.access) if hasattr(rule, "access") else "Unknown"),
                         },
                         NsgRuleModel,
                     )
@@ -354,12 +340,10 @@ class NetworkMixin(BaseAzureResourceMixin):
             self._log_debug(f"Fetched {len(rules)} effective NSG rules using API")
         except Exception as e:
             self._log_warning(f"Effective NSG rules API failed: {str(e)}")
-            
+
         return rules
 
-    async def _fetch_nsg_rules(
-        self, network_client, resource_group_name, network_interfaces
-    ):
+    async def _fetch_nsg_rules(self, network_client, resource_group_name, network_interfaces):
         """
         Fetch effective NSG rules for the first network interface.
 
@@ -381,9 +365,7 @@ class NetworkMixin(BaseAzureResourceMixin):
         first_nic_name = first_nic.name
 
         # Extract the resource group from the NIC ID
-        nic_rg_name = self._extract_resource_group_from_id(
-            first_nic.id, resource_group_name
-        )
+        nic_rg_name = self._extract_resource_group_from_id(first_nic.id, resource_group_name)
 
         self._log_debug(
             f"Fetching effective NSG rules for NIC {first_nic_name} in resource group {nic_rg_name}"
@@ -394,7 +376,9 @@ class NetworkMixin(BaseAzureResourceMixin):
 
         try:
             # First attempt: Try to get direct NSG info
-            direct_rules = await self._fetch_rules_directly(network_client, nic_rg_name, first_nic_name)
+            direct_rules = await self._fetch_rules_directly(
+                network_client, nic_rg_name, first_nic_name
+            )
             if direct_rules:
                 return direct_rules
 
@@ -457,16 +441,16 @@ class NetworkMixin(BaseAzureResourceMixin):
                 RouteModel,
             ),
         ]
-    
+
     async def _fetch_routes_via_api(self, network_client, nic_rg_name, nic_name):
         """
         Try to fetch routes using the effective route table API.
-        
+
         Args:
             network_client: Azure network client
             nic_rg_name: NIC's resource group name
             nic_name: Network interface name
-        
+
         Returns:
             List of routes if successful, empty list otherwise
         """
@@ -477,7 +461,7 @@ class NetworkMixin(BaseAzureResourceMixin):
             # Check if the method exists in this SDK version
             if not hasattr(network_client.network_interfaces, "begin_get_effective_route_table"):
                 return []
-                
+
             poller = network_client.network_interfaces.begin_get_effective_route_table(
                 nic_rg_name, nic_name
             )
@@ -506,9 +490,7 @@ class NetworkMixin(BaseAzureResourceMixin):
                             "next_hop_type": route.next_hop_type,
                             "next_hop_ip": next_hop_ip,
                             "route_origin": (
-                                route.source
-                                if hasattr(route, "source")
-                                else "Unknown"
+                                route.source if hasattr(route, "source") else "Unknown"
                             ),
                         },
                         RouteModel,
@@ -518,35 +500,35 @@ class NetworkMixin(BaseAzureResourceMixin):
             self._log_debug(f"Fetched {len(routes)} routes using effective route table API")
         except Exception as api_error:
             self._log_debug(f"Effective route table API failed: {str(api_error)}")
-            
+
         return routes
-    
+
     async def _fetch_subnet_route_table(self, network_client, subnet, subnet_parts):
         """
         Extract and fetch route table info from a subnet object.
-        
+
         Args:
             network_client: Azure network client
             subnet: Azure subnet object
             subnet_parts: Parts of the subnet ID path
-            
+
         Returns:
             List of routes if successful, empty list otherwise
         """
         routes = []
-        
+
         if not (hasattr(subnet, "route_table") and subnet.route_table):
             return []
-            
+
         if not (hasattr(subnet.route_table, "id") and subnet.route_table.id):
             return []
-            
+
         rt_id = subnet.route_table.id
         rt_parts = rt_id.split("/")
 
         if len(rt_parts) < 9:
             return []
-            
+
         rt_rg = rt_parts[4]
         rt_name = rt_parts[8]
 
@@ -558,7 +540,7 @@ class NetworkMixin(BaseAzureResourceMixin):
 
             if not (hasattr(rt, "routes") and rt.routes):
                 return []
-                
+
             for route in rt.routes:
                 routes.append(
                     self._convert_to_model(
@@ -573,18 +555,18 @@ class NetworkMixin(BaseAzureResourceMixin):
                 )
         except Exception as rt_error:
             self._log_debug(f"Error getting route table: {str(rt_error)}")
-            
+
         return routes
-    
+
     async def _fetch_routes_from_subnet(self, network_client, nic_rg_name, nic_name):
         """
         Try to get route table directly from the NIC's subnet.
-        
+
         Args:
             network_client: Azure network client
             nic_rg_name: NIC's resource group name
             nic_name: Network interface name
-        
+
         Returns:
             List of routes if successful, empty list otherwise
         """
@@ -598,31 +580,35 @@ class NetworkMixin(BaseAzureResourceMixin):
             # For this NIC, try to find subnet info from the IP configurations
             if not (hasattr(nic, "ip_configurations") and nic.ip_configurations):
                 return []
-                
+
             for ip_config in nic.ip_configurations:
                 if not (hasattr(ip_config, "subnet") and ip_config.subnet):
                     continue
-                    
+
                 if not (hasattr(ip_config.subnet, "id") and ip_config.subnet.id):
                     continue
-                    
+
                 # The subnet ID contains virtual network info
                 subnet_id = ip_config.subnet.id
                 subnet_parts = subnet_id.split("/")
 
                 if len(subnet_parts) < 11:
                     continue
-                    
+
                 vnet_rg = subnet_parts[4]
                 vnet_name = subnet_parts[8]
                 subnet_name = subnet_parts[10]
 
-                self._log_debug(f"Looking for route tables in subnet {subnet_name} of VNet {vnet_name}")
+                self._log_debug(
+                    f"Looking for route tables in subnet {subnet_name} of VNet {vnet_name}"
+                )
 
                 # Get the subnet to find route tables
                 try:
                     subnet = network_client.subnets.get(vnet_rg, vnet_name, subnet_name)
-                    subnet_routes = await self._fetch_subnet_route_table(network_client, subnet, subnet_parts)
+                    subnet_routes = await self._fetch_subnet_route_table(
+                        network_client, subnet, subnet_parts
+                    )
                     routes.extend(subnet_routes)
                 except Exception as subnet_error:
                     self._log_debug(f"Error getting subnet info: {str(subnet_error)}")
@@ -631,12 +617,10 @@ class NetworkMixin(BaseAzureResourceMixin):
                 self._log_debug(f"Fetched {len(routes)} routes using direct method")
         except Exception as direct_error:
             self._log_debug(f"Direct route fetch failed: {str(direct_error)}")
-            
+
         return routes
 
-    async def _fetch_routes(
-        self, network_client, resource_group_name, network_interfaces
-    ):
+    async def _fetch_routes(self, network_client, resource_group_name, network_interfaces):
         """
         Fetch effective routes for the first network interface.
 
@@ -658,9 +642,7 @@ class NetworkMixin(BaseAzureResourceMixin):
         first_nic_name = first_nic.name
 
         # Extract the resource group from the NIC ID
-        nic_rg_name = self._extract_resource_group_from_id(
-            first_nic.id, resource_group_name
-        )
+        nic_rg_name = self._extract_resource_group_from_id(first_nic.id, resource_group_name)
 
         self._log_debug(
             f"Fetching effective routes for NIC {first_nic_name} in resource group {nic_rg_name}"
@@ -671,12 +653,16 @@ class NetworkMixin(BaseAzureResourceMixin):
 
         try:
             # First attempt: Try to use the begin_get_effective_route_table method
-            api_routes = await self._fetch_routes_via_api(network_client, nic_rg_name, first_nic_name)
+            api_routes = await self._fetch_routes_via_api(
+                network_client, nic_rg_name, first_nic_name
+            )
             if api_routes:
                 return api_routes
 
             # Second attempt: Try to get route table directly from the NIC's subnet
-            direct_routes = await self._fetch_routes_from_subnet(network_client, nic_rg_name, first_nic_name)
+            direct_routes = await self._fetch_routes_from_subnet(
+                network_client, nic_rg_name, first_nic_name
+            )
             if direct_routes:
                 return direct_routes
 
@@ -685,9 +671,7 @@ class NetworkMixin(BaseAzureResourceMixin):
             return default_routes
 
         except Exception as e:
-            self._log_warning(
-                f"Could not fetch routes for NIC {first_nic_name}: {str(e)}"
-            )
+            self._log_warning(f"Could not fetch routes for NIC {first_nic_name}: {str(e)}")
             self._log_debug(f"Routes fetch error trace: {traceback.format_exc()}")
 
             # Return default routes as fallback on error

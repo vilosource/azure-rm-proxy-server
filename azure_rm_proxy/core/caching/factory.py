@@ -39,9 +39,7 @@ class CacheFactory:
                 )
                 return RedisCache(redis_url=redis_url, prefix=redis_prefix)
             except Exception as e:
-                logger.error(
-                    f"Failed to create Redis cache: {e}. Falling back to memory cache."
-                )
+                logger.error(f"Failed to create Redis cache: {e}. Falling back to memory cache.")
                 return MemoryCache()
         elif cache_type == CacheType.NO_CACHE.value:
             logger.info("Creating no-cache implementation (caching disabled)")

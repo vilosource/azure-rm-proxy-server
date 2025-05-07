@@ -3,16 +3,17 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class AzureAuth:
     """
     Authentication handler for Azure services.
     Uses DefaultAzureCredential to handle authentication to Azure.
     """
-    
+
     async def get_credentials(self):
         """
         Get Azure credentials using DefaultAzureCredential.
-        
+
         Returns:
             DefaultAzureCredential: Azure credential object.
         """
