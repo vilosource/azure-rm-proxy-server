@@ -159,4 +159,20 @@ Here's a step-by-step example of how to answer the question "What are the networ
 7. Look at effective_routes for routing information
 8. If needed, use `list_route_tables` to get more detailed routing information
 
+### Example Workflow: Get Production VMs in the DevOps Production Resource Group
+
+1. **Identify the Subscription**:
+   - Use the `list_subscriptions` tool to retrieve all subscriptions.
+   - Look for the subscription with "prod" in its name (e.g., "OptiscanGroupFi-Prod").
+
+2. **Find the Resource Group**:
+   - Use the `list_resource_groups` tool with the subscription ID to list all resource groups.
+   - Look for the resource group with "devops" and "prod" in its name (e.g., "rg-devops-services-prod-swedencentral-01").
+
+3. **List Virtual Machines**:
+   - Use the `list_virtual_machines` tool with the subscription ID and the resource group name to retrieve all VMs in the resource group.
+
+4. **Provide Results**:
+   - Return the list of VMs, including details like VM name, location, size, and OS type.
+
 Remember to explain your findings in a clear, organized way that directly answers the user's question.
