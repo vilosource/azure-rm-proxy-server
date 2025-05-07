@@ -1,4 +1,4 @@
-# Azure RM Proxy Server Tool
+# Azure RM Proxy Server 
 
 A proxy server for efficiently accessing Azure resources with caching. This server reduces redundant Azure API calls by caching results and provides a simple interface for retrieving Azure resource information.
 
