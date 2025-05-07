@@ -504,7 +504,10 @@ class VirtualNetworkMixin(BaseAzureResourceMixin):
                                                 )
 
                                             # Only proceed if we have a valid target ID that matches the local vnet ID
-                                            if remote_peering_target_id and remote_peering_target_id == vnet_id:
+                                            if (
+                                                remote_peering_target_id
+                                                and remote_peering_target_id == vnet_id
+                                            ):
                                                 # Found the return peering
                                                 return_peering_data = {
                                                     "id": (
