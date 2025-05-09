@@ -1,0 +1,10 @@
+{
+  "id": "/subscriptions/26612bd1-5e98-4b50-92b4-93d0541efa5d/resourceGroups/test-rg-1/providers/Microsoft.Network/routeTables/test-rt-1",
+  "name": "test-rt-1",
+  "location": "westus",
+  "resource_group": "rg-hub-network-test-swedencentral-01",
+  "route_count": 3,
+  "subnet_count": 10,
+  "provisioning_state": "Succeeded",
+  "subscription_id": "1f54a276-253c-4af9-8d48-3a6b38be639e"
+}

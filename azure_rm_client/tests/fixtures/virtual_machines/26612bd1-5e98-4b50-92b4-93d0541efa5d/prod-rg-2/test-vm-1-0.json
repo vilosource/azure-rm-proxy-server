@@ -1,0 +1,22 @@
+[
+  {
+    "id": "/subscriptions/26612bd1-5e98-4b50-92b4-93d0541efa5d/resourceGroups/prod-rg-2/providers/Microsoft.Compute/virtualMachines/test-vm-1-0",
+    "name": "test-vm-1-0",
+    "location": "southeastasia",
+    "resource_group": "rg-hub-network-test-swedencentral-01",
+    "route_count": 3,
+    "subnet_count": 10,
+    "provisioning_state": "Succeeded",
+    "subscription_id": "1f54a276-253c-4af9-8d48-3a6b38be639e"
+  },
+  {
+    "id": "/subscriptions/26612bd1-5e98-4b50-92b4-93d0541efa5d/resourceGroups/prod-rg-2/providers/Microsoft.Compute/virtualMachines/test-vm-1-1",
+    "name": "test-vm-1-1",
+    "location": "westeurope",
+    "resource_group": "rg-hub-network-test-swedencentral-01",
+    "route_count": 1,
+    "subnet_count": 0,
+    "provisioning_state": "Succeeded",
+    "subscription_id": "1f54a276-253c-4af9-8d48-3a6b38be639e"
+  }
+]

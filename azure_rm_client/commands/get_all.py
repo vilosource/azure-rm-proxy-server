@@ -27,6 +27,18 @@ The command can be executed with the specified output file name.
 
 @CommandRegistry.register
 class GetAllCommand(BaseCommand):
+    
+    def __init__(self, base_url="http://localhost:8000", args=None):
+        """
+        Initialize the command with the specified base URL.
+        
+        Args:
+            base_url (str): The base URL for the API. Defaults to http://localhost:8000.
+            args: Command arguments.
+        """
+        self.base_url = base_url
+        self.args = args
+    
     @property
     def name(self) -> str:
         return "get-all"
@@ -43,6 +55,11 @@ class GetAllCommand(BaseCommand):
             default="infra-data",
             help="Specify the output file to save the results (default: infra-data).",
         )
+    
+    @classmethod
+    def get_param_mapping(cls) -> dict:
+        """Map CLI arguments to constructor parameters"""
+        return {"base_url": "base_url"}
 
     def execute(self):
         """
@@ -52,6 +69,7 @@ class GetAllCommand(BaseCommand):
         logger.debug("Starting execution of GetAllCommand")
         output_dir = self.args["output"]  # Access output from the args dictionary
         logger.debug(f"Output directory: {output_dir}")
+        logger.debug(f"Using base URL: {self.base_url}")
         os.makedirs(output_dir, exist_ok=True)
 
         subscriptions = self._fetch_and_save_subscriptions(output_dir)
@@ -70,7 +88,7 @@ class GetAllCommand(BaseCommand):
             list: A list of subscriptions.
         """
         logger.debug("Fetching subscriptions")
-        subscription_worker = SubscriptionsWorker()
+        subscription_worker = SubscriptionsWorker(base_url=self.base_url)
         subscriptions = subscription_worker.execute()
         logger.debug(f"Fetched subscriptions: {subscriptions}")
 
@@ -89,8 +107,8 @@ class GetAllCommand(BaseCommand):
             subscriptions (list): A list of subscriptions.
             output_dir (str): The directory to save the results.
         """
-        resource_group_worker = ResourceGroupsWorker()
-        virtual_machine_worker = VirtualMachinesWorker()
+        resource_group_worker = ResourceGroupsWorker(base_url=self.base_url)
+        virtual_machine_worker = VirtualMachinesWorker(base_url=self.base_url)
 
         for subscription in subscriptions:
             subscription_id = subscription.get("id")
@@ -190,7 +208,7 @@ class GetAllCommand(BaseCommand):
         import json
 
         logger.debug("Generating virtual machine report")
-        report_worker = VMReportsWorker()
+        report_worker = VMReportsWorker(base_url=self.base_url)
         vm_report = report_worker.execute(refresh_cache=False)
 
         reports_dir = os.path.join(output_dir, "reports")
@@ -212,7 +230,7 @@ class GetAllCommand(BaseCommand):
         """
         from azure_rm_client.workers.route_tables_worker import RouteTablesWorker
 
-        route_tables_worker = RouteTablesWorker()
+        route_tables_worker = RouteTablesWorker(base_url=self.base_url)
 
         for subscription in subscriptions:
             subscription_id = subscription.get("id")

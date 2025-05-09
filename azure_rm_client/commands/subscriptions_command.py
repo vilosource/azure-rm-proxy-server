@@ -15,8 +15,9 @@ class SubscriptionsCommand(BaseCommand):
     Command for listing Azure subscriptions.
     """
 
-    def __init__(self, output_format: str = "table", args: argparse.Namespace = None):
+    def __init__(self, output_format: str = "table", base_url: str = "http://localhost:8000", args: argparse.Namespace = None):
         self.output_format = output_format
+        self.base_url = base_url
         self.args = args  # Store the parsed arguments
 
     @property
@@ -43,13 +44,14 @@ class SubscriptionsCommand(BaseCommand):
 
     @classmethod
     def get_param_mapping(cls) -> Dict[str, str]:
-        return {"format": "output_format"}
+        return {"format": "output_format", "base_url": "base_url"}
 
     def execute(self) -> bool:
-        logger.debug("Executing SubscriptionsCommand with output_format=%s", self.output_format)
+        logger.debug("Executing SubscriptionsCommand with output_format=%s, base_url=%s", 
+                    self.output_format, self.base_url)
 
-        # Use the SubscriptionsWorker to fetch subscriptions
-        worker = SubscriptionsWorker()
+        # Use the SubscriptionsWorker to fetch subscriptions with proper base_url
+        worker = SubscriptionsWorker(base_url=self.base_url)
         refresh_cache = (
             self.args.get("refresh_cache", False) if isinstance(self.args, dict) else False
         )

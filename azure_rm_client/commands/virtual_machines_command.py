@@ -9,6 +9,17 @@ logger = logging.getLogger(__name__)
 
 @CommandRegistry.register
 class VirtualMachinesCommand(BaseCommand):
+    def __init__(self, base_url="http://localhost:8000", args=None):
+        """
+        Initialize the command with the specified base URL.
+        
+        Args:
+            base_url (str): The base URL for the API. Defaults to http://localhost:8000.
+            args: Command arguments.
+        """
+        self.base_url = base_url
+        self.args = args
+
     @property
     def name(self) -> str:
         return "virtual-machines"
@@ -45,6 +56,10 @@ class VirtualMachinesCommand(BaseCommand):
         )
         details_parser.add_argument("--output", help="Output file to save results (optional)")
 
+    @classmethod
+    def get_param_mapping(cls) -> dict:
+        return {"base_url": "base_url"}
+
     def execute(self):
         """Execute the appropriate virtual machine operation based on the subcommand."""
         vm_operation = self.args.get("vm_operation")
@@ -52,8 +67,10 @@ class VirtualMachinesCommand(BaseCommand):
             logger.error("No virtual machine operation specified")
             return
 
-        # Initialize the worker
-        vm_worker = VirtualMachinesWorker()
+        # Initialize the worker with the correct base_url
+        vm_worker = VirtualMachinesWorker(base_url=self.base_url)
+        
+        logger.debug(f"Using base URL: {self.base_url}")
 
         if vm_operation == "list":
             self._list_virtual_machines(vm_worker)

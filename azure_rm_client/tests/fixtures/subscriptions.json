@@ -1,0 +1,14 @@
+[
+  {
+    "id": "6ab6f0a7-c6fe-42d1-97b4-da40043cbab0",
+    "name": "test-1",
+    "display_name": "test-1",
+    "state": "Enabled"
+  },
+  {
+    "id": "26612bd1-5e98-4b50-92b4-93d0541efa5d",
+    "name": "prod-2",
+    "display_name": "prod-2",
+    "state": "Enabled"
+  }
+]

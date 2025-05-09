@@ -1,0 +1,36 @@
+[
+  {
+    "hostname": null,
+    "os": "Windows",
+    "environment": null,
+    "purpose": null,
+    "ip_addresses": [
+      "172.20.0.68"
+    ],
+    "public_ip_addresses": [],
+    "vm_name": "vm-app-proxy-hub-network-prod-swedencentral-01",
+    "vm_size": "Standard_B4s_v2",
+    "os_disk_size_gb": 127.0,
+    "resource_group": "rg-hub-network-prod-swedencentral-01",
+    "location": "eastus",
+    "subscription_id": "bde78176-315f-441c-8a32-952c78df554d",
+    "subscription_name": "OptiscanGroupFi-Prod"
+  },
+  {
+    "hostname": "dns-proxy-cache-1.prod.optiscangroup.com",
+    "os": "Linux",
+    "environment": "prod",
+    "purpose": "DNS ",
+    "ip_addresses": [
+      "172.20.0.36"
+    ],
+    "public_ip_addresses": [],
+    "vm_name": "vm-dns-proxy-cache-1-hub-network-prod-swedencentral-1",
+    "vm_size": "Standard_B2ts_v2",
+    "os_disk_size_gb": 30.0,
+    "resource_group": "rg-hub-network-prod-swedencentral-01",
+    "location": "westeurope",
+    "subscription_id": "bde78176-315f-441c-8a32-952c78df554d",
+    "subscription_name": "OptiscanGroupFi-Prod"
+  }
+]

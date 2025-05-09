@@ -1,0 +1,22 @@
+[
+  {
+    "id": "/subscriptions/6ab6f0a7-c6fe-42d1-97b4-da40043cbab0/resourceGroups/test-rg-1/providers/Microsoft.Network/routeTables/test-rt-1",
+    "name": "test-rt-1",
+    "location": "eastus",
+    "resource_group": "rg-devops-services-prod-swedencentral-01",
+    "route_count": 8,
+    "subnet_count": 1,
+    "provisioning_state": "Succeeded",
+    "subscription_id": "bde78176-315f-441c-8a32-952c78df554d"
+  },
+  {
+    "id": "/subscriptions/6ab6f0a7-c6fe-42d1-97b4-da40043cbab0/resourceGroups/test-rg-1/providers/Microsoft.Network/routeTables/test-rt-2",
+    "name": "test-rt-2",
+    "location": "westus",
+    "resource_group": "rg-dsw-services-prod-swedencentral-01",
+    "route_count": 0,
+    "subnet_count": 0,
+    "provisioning_state": "Succeeded",
+    "subscription_id": "bde78176-315f-441c-8a32-952c78df554d"
+  }
+]

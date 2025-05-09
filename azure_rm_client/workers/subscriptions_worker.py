@@ -12,10 +12,17 @@ class SubscriptionsWorker(Worker):
     Worker for handling operations related to subscriptions.
     """
 
-    def __init__(self):
+    def __init__(self, base_url="http://localhost:8000"):
+        """
+        Initialize the worker with the specified base URL.
+        
+        Args:
+            base_url (str): The base URL for the API. Defaults to http://localhost:8000.
+        """
         super().__init__()
         self.credential = DefaultAzureCredential()
         self.client = SubscriptionClient(self.credential)
+        self.base_url = base_url
 
     def list_subscriptions(self, refresh_cache: bool = False):
         """
@@ -33,8 +40,7 @@ class SubscriptionsWorker(Worker):
             logger.debug("Cache miss: Fetching subscriptions from API")
 
         # Make an API call to fetch subscriptions
-        base_url = "http://localhost:8000"  # Replace with actual base URL if different
-        endpoint = f"{base_url}/api/subscriptions/"
+        endpoint = f"{self.base_url}/api/subscriptions/"
         params = {"refresh-cache": refresh_cache}
 
         try:

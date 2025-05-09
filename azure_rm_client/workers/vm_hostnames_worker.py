@@ -1,3 +1,4 @@
+import logging
 from .worker_base import Worker
 
 

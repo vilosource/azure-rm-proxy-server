@@ -1,11 +1,24 @@
+import logging
 from .worker_base import Worker
+
+# Ensure logger initialization
+logger = logging.getLogger(__name__)
 
 
 class VirtualMachinesWorker(Worker):
     """
     Worker for handling operations related to virtual machines.
     """
-
+    
+    def __init__(self, base_url="http://localhost:8000"):
+        """
+        Initialize the worker with the specified base URL.
+        
+        Args:
+            base_url (str): The base URL for the API. Defaults to http://localhost:8000.
+        """
+        self.base_url = base_url
+        
     def list_virtual_machines(
         self, subscription_id: str, resource_group_name: str, refresh_cache: bool = False
     ):
@@ -21,11 +34,8 @@ class VirtualMachinesWorker(Worker):
             list: A list of virtual machines.
         """
         import requests
-        import logging
 
-        logger = logging.getLogger(__name__)
-        base_url = "http://localhost:8000"  # Replace with actual base URL if different
-        endpoint = f"{base_url}/api/subscriptions/{subscription_id}/resource-groups/{resource_group_name}/virtual-machines/"
+        endpoint = f"{self.base_url}/api/subscriptions/{subscription_id}/resource-groups/{resource_group_name}/virtual-machines/"
         params = {"refresh-cache": refresh_cache}
 
         try:
@@ -65,11 +75,8 @@ class VirtualMachinesWorker(Worker):
             dict: Details of the virtual machine.
         """
         import requests
-        import logging
 
-        logger = logging.getLogger(__name__)
-        base_url = "http://localhost:8000"  # Replace with actual base URL if different
-        endpoint = f"{base_url}/api/subscriptions/{subscription_id}/resource-groups/{resource_group_name}/virtual-machines/{vm_name}"
+        endpoint = f"{self.base_url}/api/subscriptions/{subscription_id}/resource-groups/{resource_group_name}/virtual-machines/{vm_name}"
         params = {"refresh-cache": refresh_cache}
 
         try:

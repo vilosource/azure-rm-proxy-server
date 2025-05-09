@@ -16,12 +16,17 @@ class VNetPeeringReportCommand(BaseCommand):
 
     def __init__(self, base_url: str = "http://localhost:8000"):
         """Initialize the command."""
-        super().__init__(
-            name="vnet-peering-report",
-            description="Get a report of virtual network peerings showing both sides of connections",
-            aliases=["vnet-peerings", "peering-report"],
-            base_url=base_url,
-        )
+        self.base_url = base_url
+
+    @property
+    def name(self) -> str:
+        """Get the name of the command (required implementation of abstract property)"""
+        return "vnet-peering-report"
+
+    @property
+    def description(self) -> str:
+        """Get the description of the command (required implementation of abstract property)"""
+        return "Get a report of virtual network peerings showing both sides of connections"
 
     def add_arguments(self, parser):
         """Add command-specific arguments."""
@@ -57,7 +62,7 @@ class VNetPeeringReportCommand(BaseCommand):
             Dictionary with report data
         """
         # Build API endpoint URL
-        base_url = f"{args.base_url}/api/vnet-peering-report/subscriptions/{args.subscription}"
+        base_url = f"{self.base_url}/api/vnet-peering-report/subscriptions/{args.subscription}"
 
         # Add optional parameters
         params = {"refresh-cache": args.refresh_cache}
