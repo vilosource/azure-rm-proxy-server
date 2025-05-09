@@ -1,5 +1,5 @@
 # Azure RM Proxy Server Makefile
-.PHONY: help install run run-mock run-with-redis test lint format format-check clean fixtures harnesses docs test-client test-core
+.PHONY: help install run run-mock run-with-redis test lint format format-check clean fixtures harnesses docs test-client test-core test-subscriptions-worker test-workers
 
 # Default target executed when no arguments are given to make.
 help:
@@ -15,6 +15,8 @@ help:
 	@echo "  make test             Run all tests"
 	@echo "  make test-core        Run only core unit tests for azure_rm_proxy"
 	@echo "  make test-client      Run client tests"
+	@echo "  make test-subscriptions-worker Run tests for SubscriptionsWorker"
+	@echo "  make test-workers     Run all worker-related tests"
 	@echo "  make lint             Run linters (flake8, mypy)"
 	@echo "  make format           Format code with Black"
 	@echo "  make format-check     Check code formatting with Black"
@@ -60,6 +62,15 @@ test-core:
 # Run client tests
 test-client:
 	poetry run pytest azure_rm_client/tests
+
+# Run SubscriptionsWorker tests
+test-subscriptions-worker:
+	@echo "Running SubscriptionsWorker tests..."
+	poetry run pytest azure_rm_client/tests/test_subscriptions_worker.py -vv
+
+# Run all worker-related tests
+test-workers:
+	poetry run pytest azure_rm_client/tests -v
 
 # Run linters
 lint:

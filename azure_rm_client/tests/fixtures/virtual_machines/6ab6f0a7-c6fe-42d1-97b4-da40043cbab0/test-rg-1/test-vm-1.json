@@ -1,0 +1,414 @@
+{
+  "id": "/subscriptions/6ab6f0a7-c6fe-42d1-97b4-da40043cbab0/resourceGroups/test-rg-1/providers/Microsoft.Compute/virtualMachines/test-vm-1",
+  "name": "test-vm-1",
+  "location": "westus",
+  "vm_size": "Standard_D2s_v4",
+  "os_type": "Linux",
+  "power_state": null,
+  "network_interfaces": [
+    {
+      "id": "/subscriptions/bde78176-315f-441c-8a32-952c78df554d/resourceGroups/rg-abad-services-prod-swedencentral-01/providers/Microsoft.Network/networkInterfaces/nic-vm-abad-tms-demo-se-1-abad-services-prod-swedencentral-2",
+      "name": "nic-vm-abad-tms-demo-se-1-abad-services-prod-swedencentral-2",
+      "private_ip_addresses": [
+        "172.20.4.197"
+      ],
+      "public_ip_addresses": [
+        "74.241.208.85"
+      ]
+    }
+  ],
+  "effective_nsg_rules": [],
+  "effective_routes": [
+    {
+      "address_prefix": "172.20.4.192/28",
+      "next_hop_type": "VnetLocal",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "172.20.0.0/24",
+      "next_hop_type": "VNetPeering",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "10.10.222.48/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.1.32.0/26",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.1.20.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.1.40.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.10.222.10/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "194.28.1.192/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "62.165.148.194/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "192.168.10.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.1.99.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.10.221.14/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "194.28.1.157/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "212.213.189.73/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "194.28.1.193/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.11.127.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.1.30.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "172.16.67.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.1.16.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "81.175.252.83/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "81.175.252.84/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.115.76.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "192.194.58.106/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "212.213.189.74/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "192.194.58.107/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "5.253.72.0/25",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "172.16.66.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.115.1.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.115.9.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "192.168.125.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.11.138.0/23",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.11.126.0/24",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "172.24.10.82/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.82.102.25/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "10.82.110.82/32",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": "20.240.246.240",
+      "route_origin": "VirtualNetworkGateway"
+    },
+    {
+      "address_prefix": "172.20.1.0/28",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": null,
+      "route_origin": "User"
+    },
+    {
+      "address_prefix": "172.20.1.64/28",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": null,
+      "route_origin": "User"
+    },
+    {
+      "address_prefix": "172.20.8.0/22",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip": null,
+      "route_origin": "User"
+    },
+    {
+      "address_prefix": "0.0.0.0/0",
+      "next_hop_type": "Internet",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "10.0.0.0/8",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "127.0.0.0/8",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "100.64.0.0/10",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "172.16.0.0/12",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "25.176.0.0/13",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "25.152.0.0/14",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "25.184.0.0/14",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "25.4.0.0/14",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "25.148.0.0/15",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "198.18.0.0/15",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "25.150.0.0/16",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "25.156.0.0/16",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "25.159.0.0/16",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "40.109.0.0/16",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "192.168.0.0/16",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "104.147.0.0/16",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "157.59.0.0/16",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "40.108.0.0/17",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "104.146.0.0/17",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "23.103.0.0/18",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "20.35.252.0/22",
+      "next_hop_type": "None",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "10.100.0.0/24",
+      "next_hop_type": "None",
+      "next_hop_ip": "172.20.0.37",
+      "route_origin": "User"
+    },
+    {
+      "address_prefix": "57.150.58.0/23",
+      "next_hop_type": "VirtualNetworkServiceEndpoint",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "20.157.150.0/24",
+      "next_hop_type": "VirtualNetworkServiceEndpoint",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "172.20.0.70/32",
+      "next_hop_type": "InterfaceEndpoint",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    },
+    {
+      "address_prefix": "172.20.0.69/32",
+      "next_hop_type": "InterfaceEndpoint",
+      "next_hop_ip": null,
+      "route_origin": "Default"
+    }
+  ],
+  "aad_groups": []
+}

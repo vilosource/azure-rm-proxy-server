@@ -5,7 +5,16 @@ class ResourceGroupsWorker(Worker):
     """
     Worker for handling operations related to resource groups.
     """
-
+    
+    def __init__(self, base_url="http://localhost:8000"):
+        """
+        Initialize the worker with the specified base URL.
+        
+        Args:
+            base_url (str): The base URL for the API. Defaults to http://localhost:8000.
+        """
+        self.base_url = base_url
+        
     def list_resource_groups(self, subscription_id: str, refresh_cache: bool = False):
         """
         List resource groups for a specific subscription.
@@ -31,8 +40,7 @@ class ResourceGroupsWorker(Worker):
         import logging
 
         logger = logging.getLogger(__name__)
-        base_url = "http://localhost:8000"  # Replace with actual base URL if different
-        endpoint = f"{base_url}/api/subscriptions/{subscription_id}/resource-groups/"
+        endpoint = f"{self.base_url}/api/subscriptions/{subscription_id}/resource-groups/"
         params = {"refresh-cache": refresh_cache}
 
         try:

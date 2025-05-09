@@ -7,6 +7,15 @@ class VMReportsWorker(Worker):
     """
     Worker for handling operations related to VM reports.
     """
+    
+    def __init__(self, base_url="http://localhost:8000"):
+        """
+        Initialize the worker with the specified base URL.
+        
+        Args:
+            base_url (str): The base URL for the API. Defaults to http://localhost:8000.
+        """
+        self.base_url = base_url
 
     def generate_vm_report(self, refresh_cache: bool = False):
         """
@@ -19,8 +28,7 @@ class VMReportsWorker(Worker):
             list: A list of virtual machine reports.
         """
         logger = logging.getLogger(__name__)
-        base_url = "http://localhost:8000"  # Replace with actual base URL if different
-        endpoint = f"{base_url}/api/reports/virtual-machines"
+        endpoint = f"{self.base_url}/api/reports/virtual-machines"
         params = {"refresh-cache": refresh_cache}
 
         try:

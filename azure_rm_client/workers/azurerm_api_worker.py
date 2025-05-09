@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Dict, Any, Optional
 from azure_rm_client.client import RestClient
 from .worker_base import Worker
@@ -17,6 +18,7 @@ class AzureRMApiWorker(Worker):
             rest_client: A RestClient instance for making API requests
         """
         self.rest_client = rest_client
+        self.logger = logging.getLogger(__name__)
 
     def execute(self, endpoint: str = "openapi.json") -> Optional[Dict[str, Any]]:
         """
@@ -28,7 +30,7 @@ class AzureRMApiWorker(Worker):
         Returns:
             Azure RM API data or None if the request fails
         """
-        logger.info(f"Fetching Azure RM API data from endpoint: {endpoint}")
+        self.logger.info(f"Fetching Azure RM API data from endpoint: {endpoint}")
         return self.rest_client.get(endpoint)
 
     def save_to_file(self, data: Dict[str, Any], file_path: str) -> bool:
@@ -45,8 +47,8 @@ class AzureRMApiWorker(Worker):
         try:
             with open(file_path, "w") as f:
                 json.dump(data, f, indent=2)
-            logger.info(f"Azure RM API data saved to {file_path}")
+            self.logger.info(f"Azure RM API data saved to {file_path}")
             return True
         except Exception as e:
-            logger.error(f"Failed to save Azure RM API data to {file_path}: {e}")
+            self.logger.error(f"Failed to save Azure RM API data to {file_path}: {e}")
             return False

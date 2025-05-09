@@ -1,0 +1,19 @@
+{
+  "id": "/subscriptions/26612bd1-5e98-4b50-92b4-93d0541efa5d/resourceGroups/prod-rg-2/providers/Microsoft.Compute/virtualMachines/prod-vm-2",
+  "name": "prod-vm-2",
+  "location": "eastus",
+  "resource_group": "rg-hub-network-test-swedencentral-01",
+  "routes": [
+    {
+      "name": "route-to-prod-devops",
+      "address_prefix": "172.20.1.0/28",
+      "next_hop_type": "VirtualNetworkGateway",
+      "next_hop_ip_address": null
+    }
+  ],
+  "subnets": [],
+  "provisioning_state": "Succeeded",
+  "disable_bgp_route_propagation": false,
+  "tags": {},
+  "subscription_id": "1f54a276-253c-4af9-8d48-3a6b38be639e"
+}

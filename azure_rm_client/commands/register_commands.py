@@ -13,6 +13,7 @@ from .vm_reports_command import VMReportsCommand
 from .route_tables_command import RouteTablesCommand
 from .list_resources_command import ListResourcesCommand
 from .vnet_peering_report_command import VNetPeeringReportCommand
+from .resource_command import ResourceCommand  # Import the ResourceCommand
 
 # Register top-level commands
 CommandRegistry.register(SubscriptionsCommand)
@@ -25,6 +26,7 @@ CommandRegistry.register(VMReportsCommand)
 CommandRegistry.register(RouteTablesCommand)
 CommandRegistry.register(ListResourcesCommand)
 CommandRegistry.register(VNetPeeringReportCommand)  # Register our new command
+CommandRegistry.register(ResourceCommand)  # Register the ResourceCommand
 
 # Register subcommands
 CommandRegistry.register_subcommand("resource-groups")(ResourceGroupCommand)

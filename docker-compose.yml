@@ -1,7 +1,34 @@
-version: '3.8'
-
 services:
-  redis:
+  azure-rm-proxy-web:
+    container_name: azure-rm-proxy-web
+    build: .
+    ports:
+      - "7890:7890"
+    environment:
+      CACHE_TYPE: "redis"
+      REDIS_URL: "redis://azure-rm-proxy-redis:6379/0"
+      REDIS_PREFIX: "azure_rm_proxy:"
+      PORT: "7890"
+      # Add your Azure credentials as needed
+      AZURE_TENANT_ID: "${AZURE_TENANT_ID}"
+      AZURE_CLIENT_ID: "${AZURE_CLIENT_ID}"
+      AZURE_CLIENT_SECRET: "${AZURE_CLIENT_SECRET}"
+    volumes:
+      - ./infra-data:/app/infra-data
+      - ./logs:/app/logs
+    depends_on:
+      azure-rm-proxy-redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:7890/api/ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  azure-rm-proxy-redis:
+    container_name: azure-rm-proxy-redis
     image: redis:alpine
     ports:
       - "6379:6379"
@@ -10,7 +37,7 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: [ "CMD", "redis-cli", "ping" ]
       interval: 5s
       timeout: 3s
       retries: 5
